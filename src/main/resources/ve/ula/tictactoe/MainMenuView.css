@@ -4,14 +4,21 @@
     -fx-alignment: center;
 }
 
-.label {
-    -fx-font-size: 50px;
+.MainTitle {
+    -fx-font-size: 40px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2e86de;
+}
+
+.SecondaryTitle {
+    -fx-font-size: 30px;
     -fx-font-weight: bold;
     -fx-text-fill: #2e86de;
 }
 
 .button {
     -fx-font-size: 1.5em;
+    -fx-min-width: 10em;
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
     -fx-background-radius: 0;

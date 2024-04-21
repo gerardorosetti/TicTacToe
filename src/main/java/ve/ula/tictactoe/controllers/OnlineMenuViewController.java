@@ -5,7 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import ve.ula.tictactoe.MainApplication;
 
@@ -13,22 +13,27 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MainMenuViewController implements Initializable {
+public class OnlineMenuViewController implements Initializable {
 
     @FXML
-    private Button buttonLocal;
+    private Button createRoomButton;
 
     @FXML
-    private Button buttonOnline;
+    private Button joinRoomButton;
+
+    @FXML
+    private Button returnMenuButton;
 
     @FXML
     private VBox container;
 
+    @FXML
+    ListView<String> roomsListView;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //buttons = new ArrayList<>(Arrays.asList(button1,button2,button3,button4,button5,button6,button7,button8,button9));
 
-        buttonLocal.setOnAction(e ->
+        createRoomButton.setOnAction(e ->
         {
             try {
                 FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeLocalView.fxml"));
@@ -40,16 +45,22 @@ public class MainMenuViewController implements Initializable {
             }
         });
 
-        buttonOnline.setOnAction(e ->
+        returnMenuButton.setOnAction(e ->
         {
             try {
-                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("OnlineMenuView.fxml"));
+                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("MainMenuView.fxml"));
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
                 container.getChildren().add(fxmlContent);
+                //container.getScene().getStylesheets().add(MainApplication.class.getResource("MainMenuView.css").toExternalForm());
             } catch (IOException exp) {
                 exp.printStackTrace();
             }
+        });
+
+        joinRoomButton.setOnAction(e ->
+        {
+            System.out.println("Join");
         });
         /*
         button.setOnMouseClicked(mouseEvent -> {

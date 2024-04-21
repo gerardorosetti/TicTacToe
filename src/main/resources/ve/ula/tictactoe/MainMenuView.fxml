@@ -10,7 +10,7 @@
             fx:controller="ve.ula.tictactoe.controllers.MainMenuViewController"
             prefHeight="400.0" prefWidth="600.0">
         <VBox alignment="CENTER" spacing="100">
-            <Label text="TicTacToe" />
+            <Label text="TicTacToe" styleClass="MainTitle"/>
             <HBox alignment="CENTER" spacing="100">
                 <Button fx:id="buttonLocal" text="Play Local"  />
                 <Button fx:id="buttonOnline" text="Play Online"  />
