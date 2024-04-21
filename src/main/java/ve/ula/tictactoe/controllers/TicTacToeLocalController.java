@@ -1,9 +1,10 @@
-package ve.ula.tictactoe;
+package ve.ula.tictactoe.controllers;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 
 import java.net.URL;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
-public class HelloController implements Initializable {
+public class TicTacToeLocalController implements Initializable {
 
     @FXML
     private Button button1;
@@ -46,7 +47,6 @@ public class HelloController implements Initializable {
     private int playerTurn = 0;
 
     ArrayList<Button> buttons;
-
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
