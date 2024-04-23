@@ -86,7 +86,7 @@ public class TicTacToeLocalController implements Initializable {
             playerTurn = 0;
         }
     }
-
+    int i = 0;
     public void checkIfGameIsOver(){
         for (int a = 0; a < 8; a++) {
             String line = switch (a) {
@@ -100,16 +100,35 @@ public class TicTacToeLocalController implements Initializable {
                 case 7 -> button3.getText() + button6.getText() + button9.getText();
                 default -> null;
             };
-
             //X winner
             if (line.equals("XXX")) {
                 winnerText.setText("X won!");
+                disableButtons();
+                return;
             }
-
             //O winner
             else if (line.equals("OOO")) {
                 winnerText.setText("O won!");
+                disableButtons();
+                return;
+            }
+            else if (button1.isDisabled() && button2.isDisabled() && button3.isDisabled() && button4.isDisabled()
+                      && button5.isDisabled() && button6.isDisabled() && button7.isDisabled() && button8.isDisabled()
+                      && button9.isDisabled()) {
+                        winnerText.setText("It's a draw!");
             }
         }
+    }
+
+    public void disableButtons() {
+        button1.setDisable(true);
+        button2.setDisable(true);
+        button3.setDisable(true);
+        button4.setDisable(true);
+        button5.setDisable(true);
+        button6.setDisable(true);
+        button7.setDisable(true);
+        button8.setDisable(true);
+        button9.setDisable(true);
     }
 }
