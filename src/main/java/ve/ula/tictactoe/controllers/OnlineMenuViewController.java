@@ -8,9 +8,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
 import ve.ula.tictactoe.MainApplication;
+import ve.ula.tictactoe.model.Connection;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class OnlineMenuViewController implements Initializable {
@@ -30,8 +34,20 @@ public class OnlineMenuViewController implements Initializable {
     @FXML
     ListView<String> roomsListView;
 
+    //private Socket socket;
+    private final int port = 5900;
+    private Connection connection;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        try {
+            Socket socket = new Socket("localhost", port);
+            connection = new Connection(socket);
+            updateRoomsList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         createRoomButton.setOnAction(e ->
         {
@@ -68,5 +84,12 @@ public class OnlineMenuViewController implements Initializable {
             button.setDisable(true);
             checkIfGameIsOver();
         });*/
+    }
+
+    private void updateRoomsList() {
+        roomsListView.getItems().clear();
+        String message = connection.receiveMessage();
+        List<String> items = Arrays.stream(message.split(" ")).toList();
+        roomsListView.getItems().addAll(items);
     }
 }
