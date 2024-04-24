@@ -42,7 +42,7 @@ public class OnlineMenuViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
         try {
-            Socket socket = new Socket("l192.168.0.143", port);
+            Socket socket = new Socket("localhost", port);
             connection = new Connection(socket);
             updateRoomsList();
         } catch (Exception e) {
@@ -82,7 +82,7 @@ public class OnlineMenuViewController implements Initializable {
                 connection.sendMessage(selectedRoomName);
                 String message = connection.receiveMessage();
                 if (message.equals("JOINED")) {
-                    System.out.println("JOINING ROOM " + message);
+                    System.out.println("JOINING ROOM SUCCESS");
                     FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
                     Parent fxmlContent = loader.load();
                     container.getChildren().clear();
@@ -90,7 +90,7 @@ public class OnlineMenuViewController implements Initializable {
                     TicTacToeOnlineController TTTOC = loader.getController();
                     TTTOC.setConnection(connection);
                 } else {
-                    System.out.println("JOINING ROOM FAILED " + message);
+                    System.out.println("JOINING ROOM FAILED");
                 }
             } catch (IOException exp) {
                 exp.printStackTrace();
