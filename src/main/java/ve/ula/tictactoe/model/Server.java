@@ -3,9 +3,12 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
-public class Server{
+public class Server {
 
     private Socket[] sockets = new Socket[2];
     private int port;
@@ -68,10 +71,49 @@ public class Server{
             }
         }
         connection.sendMessage(roomsListString);
+
+        String selectedRoom = connection.receiveMessage();
+
+        for (Room room : rooms) {
+            if (room.getRoomName().equals(selectedRoom)) {
+                if (room.getNumPlayersConnected() < 2) {
+                    if (room.setPlayer(connection)) {
+                        System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
+                        connection.sendMessage("JOINED");
+                        room.startComunicationWithPlayer();
+                        break;
+                    }
+                }
+                System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
+                connection.sendMessage("FAILED");
+                manageIndividualConnection(connection);
+                break;
+            }
+        }
     }
 
     public static void main(String[] args){
         Server server = new Server(5900);
         server.listen();
     }
+    /*
+    public Iterator<Room> roomIterator() {
+        return new RoomIterator();
+    }
+
+    private class RoomIterator implements Iterator<Room> {
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return currentIndex < rooms.size();
+        }
+
+        @Override
+        public Room next() {
+            return rooms.get(currentIndex++);
+        }
+    }
+    */
 }
+

@@ -4,25 +4,60 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class Room implements Runnable{
+public class Room/* implements Runnable*/{
+
     private static int roomNumber = 0;
-    private Socket[] players_socket = new Socket[2];
-    private boolean finished = false;
-    private TicTacToe game = new TicTacToe();
-    String roomName = "";
+    //private Socket[] players_socket = new Socket[2];
+    private boolean finished;
+    private TicTacToe game;
+    private  String roomName = "";
+    private final Connection[] playersConnections;
+    private int numPlayersConnected;
 
     public Room() {
         roomName = "Room-" + ++roomNumber;
+        playersConnections = new Connection[2];
+        playersConnections[0] = null;
+        playersConnections[1] = null;
+        numPlayersConnected = 0;
+        game = new TicTacToe();
+        finished = false;
     }
-    public Room(Socket[] _players_socket){
+    /*public Room(Socket[] _players_socket){
         this.players_socket = _players_socket;
-    }
-
+    }*/
     public String getRoomName() {
         return roomName;
     }
 
-    @Override
+    public void startComunicationWithPlayer() {
+        if (numPlayersConnected == 1) {
+            playersConnections[0].sendMessage("player1");
+        } else {
+            playersConnections[1].sendMessage("player2");
+        }
+    }
+
+    public boolean setPlayer(Connection connection) {
+        if (numPlayersConnected >= 2) {
+            return false;
+        }
+        if (playersConnections[0] == null) {
+            playersConnections[0] = connection;
+            //playersConnections[0].sendMessage("player1");
+        } else {
+            playersConnections[1] = connection;
+            //playersConnections[1].sendMessage("player2");
+        }
+        ++numPlayersConnected;
+        return true;
+    }
+
+    public int getNumPlayersConnected() {
+        return numPlayersConnected;
+    }
+
+    /*@Override
     public void run() {
         try {
             Socket soc1 = players_socket[0];
@@ -77,5 +112,5 @@ public class Room implements Runnable{
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
+    }*/
 }
