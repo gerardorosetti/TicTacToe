@@ -5,86 +5,108 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Server implements Runnable {
-    static private TicTacToe game = new TicTacToe();
-    static private boolean finished = false;
+public class Server {
+    private List<Socket> connections;
+    private ServerSocket serverSocket;
     private int port;
+
+    public static void main(String[] args) {
+        Server server = new Server(6000);
+        server.start();
+    }
 
     public Server(int _port){
         this.port = _port;
     }
-    @Override
-    public void run() {
+
+    public void start() {
         try {
-            System.out.println("Waiting for players...");
-            ServerSocket ss = new ServerSocket(port);
+            connections = new ArrayList<Socket>();
+            serverSocket = new ServerSocket(port);
+            System.out.println("Server running. Waiting for connections...");
 
-            Socket soc1 = ss.accept();
-            PrintWriter out1 = new PrintWriter(soc1.getOutputStream(), true);
+            while (true) {
+                Socket newConnection = serverSocket.accept();
+                connections.add(newConnection);
+                System.out.println("New connection added.");
 
-            System.out.println("Connection Established 1");
-            out1.println("WAITING");
-
-            Socket soc2 = ss.accept();
-            PrintWriter out2 = new PrintWriter(soc2.getOutputStream(), true);
-
-            System.out.println("Connection Established 2");
-            out1.println("START");
-            out2.println("START");
-            BufferedReader in1 = new BufferedReader(new InputStreamReader(soc1.getInputStream()));
-            BufferedReader in2 = new BufferedReader(new InputStreamReader(soc2.getInputStream()));
-            while(!finished) {
-
-                out1.println("PLAY");
-                String message1 = in1.readLine();
-                String[] parts = message1.split(" ");
-
-                char player = 'X';//parts[0].charAt(0);
-                int row = Integer.parseInt(parts[0]);
-                int col = Integer.parseInt(parts[1]);
-
-                //PrintWriter out = new PrintWriter(soc1.getOutputStream(), true);
-                process_move(row, col, player);
-                game.show_board();
-                finished = game.isGameOver();
-                if (finished) {
-                    out1.println("GAMEOVER");
-                    out2.println("GAMEOVER");
-                    continue;
+                if (connections.size() >= 2) {
+                    Socket socket1 = connections.remove(0);
+                    Socket socket2 = connections.remove(0);
+                    createGameThread(socket1, socket2);
                 }
-
-                out2.println("PLAY");
-                String message2 = in2.readLine();
-                parts = message2.split(" ");
-
-                char player2 = 'O';//parts[0].charAt(0);
-                row = Integer.parseInt(parts[0]);
-                col = Integer.parseInt(parts[1]);
-
-                //PrintWriter out = new PrintWriter(soc1.getOutputStream(), true);
-                process_move(row, col, player2);
-                game.show_board();
-                finished = game.isGameOver();
-                if (finished) {
-                    out1.println("GAMEOVER");
-                    out2.println("GAMEOVER");
-                    continue;
-                }
-
-                out1.println("KEEP PLAYING");
-                out2.println("KEEP PLAYING");
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                serverSocket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
-    public static void main(String[] args){
-        Server server = new Server(6000);
-        server.run();
-    }
-    static void process_move(int row, int col, char player)
+
+    private boolean checkDrawByString(String boardStr)
     {
-        game.makeMove(row,col,player);
+        boolean isDraw = true;
+        for (int i = 0; i < 9; ++i) {
+            if (boardStr.charAt(i) == '_') {
+                isDraw = false;
+            }
+        }
+        return isDraw;
+    }
+
+    public void createGameThread(Socket socket1, Socket socket2) {
+        Thread gameThread = new Thread(() -> {
+            System.out.println("Game thread created for " + socket1.getInetAddress() + " and " + socket2.getInetAddress());
+
+            try {
+                PrintWriter out1 = new PrintWriter(socket1.getOutputStream(), true);
+                PrintWriter out2 = new PrintWriter(socket2.getOutputStream(), true);
+                BufferedReader in1 = new BufferedReader(new InputStreamReader(socket1.getInputStream()));
+                BufferedReader in2 = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
+
+                String inf = "1_________";
+
+                TicTacToe board = new TicTacToe();
+
+                System.out.println("Waiting for players to accept begin the game");
+
+                in1.readLine();
+                in2.readLine();
+
+                while(true) {
+                    out1.println(inf);
+                    inf = in1.readLine();
+                    board.setBoardByString(inf.substring(1));
+
+                    if (board.isGameOver() || checkDrawByString(inf.substring(1))) {
+                        out1.println("GAMEOVER");
+                        out2.println("GAMEOVER");
+                        break;
+                    }
+
+                    out2.println(inf);
+                    inf = in2.readLine();
+                    board.setBoardByString(inf.substring(1));
+
+                    if (board.isGameOver() || checkDrawByString(inf.substring(1))) {
+                        out1.println("GAMEOVER");
+                        out2.println("GAMEOVER");
+                        break;
+                    }
+                }
+            } catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+        });
+        gameThread.start();
     }
 }

@@ -18,6 +18,17 @@ public class TicTacToe {
         }
         return false;
     }
+
+    public void setBoardByString(String b) {
+        for (int i = 0, j = 0, k = 0; k < 9; ++j, ++k) {
+            board[i][j] = b.charAt(k);
+            if (j == 2) {
+                j = -1;
+                ++i;
+            }
+        }
+    }
+
     public void show_board(){
         for (int i = 0 ; i< 3 ; ++i){
             for (int j = 0 ; j < 3; ++j){
