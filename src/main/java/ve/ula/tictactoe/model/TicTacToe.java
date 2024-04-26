@@ -13,6 +13,14 @@ public class TicTacToe {
         }
     }
 
+    public void reset() {
+        for(int i = 0 ; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                board[i][j] = '_';
+            }
+        }
+    }
+
     public boolean makeMove(int row, int col, char player) {
         if ( board [row][col] == '_') {
             board[row][col] = player;
