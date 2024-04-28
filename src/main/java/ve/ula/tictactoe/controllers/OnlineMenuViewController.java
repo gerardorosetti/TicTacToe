@@ -38,10 +38,8 @@ public class OnlineMenuViewController implements Initializable {
     ListView<String> roomsListView;
 
     private ScheduledService<Void> receiveRoomsList;
-    private ScheduledService<Void> receiveJoined;
     private final int port = 5900;
     private Connection connectionRooms;
-    private Connection client;
 
 
     @Override
@@ -50,9 +48,7 @@ public class OnlineMenuViewController implements Initializable {
         try {
             Socket socket = new Socket("localhost", port);
             connectionRooms = new Connection(socket);
-            Socket socket1 = new Socket("localhost", port);
-            client = new Connection(socket1);
-            //new Thread(this::updateRoomsList).start();
+
             receiveRoomsList = new ScheduledService<Void>() {
                 @Override
                 protected Task<Void> createTask() {
@@ -74,29 +70,6 @@ public class OnlineMenuViewController implements Initializable {
                         }
                     };
 
-                }
-            };
-            receiveJoined = new ScheduledService<Void>() {
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-                        @Override
-                        protected Void call() throws Exception {
-                            String message = client.receiveMessage();
-                            if (message.equals("JOINED")) {
-                                System.out.println("JOINING ROOM SUCCESS");
-                                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
-                                Parent fxmlContent = loader.load();
-                                container.getChildren().clear();
-                                container.getChildren().add(fxmlContent);
-                                TicTacToeOnlineController TTTOC = loader.getController();
-                                TTTOC.setConnection(client);
-                            } else {
-                                System.out.println("JOINING ROOM FAILED");
-                            }
-                            return null;
-                        }
-                    };
                 }
             };
             receiveRoomsList.setPeriod(Duration.seconds(1));
@@ -133,16 +106,17 @@ public class OnlineMenuViewController implements Initializable {
         {
             try{
                 String selectedRoomName = roomsListView.getSelectionModel().getSelectedItem();
-                client.sendMessage(selectedRoomName);
-                String message = client.receiveMessage();
-                if (message.equals("JOINED")) {
+                connectionRooms.sendMessage(selectedRoomName);
+                int playersCount = Integer.parseInt(selectedRoomName.split("Current Players: ")[1]);
+                System.out.println("Número de jugadores actuales: " + playersCount);
+                if (playersCount < 2) {
                     System.out.println("JOINING ROOM SUCCESS");
                     FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
                     Parent fxmlContent = loader.load();
                     container.getChildren().clear();
                     container.getChildren().add(fxmlContent);
                     TicTacToeOnlineController TTTOC = loader.getController();
-                    TTTOC.setConnection(client);
+                    TTTOC.setConnection(connectionRooms);
                 } else {
                     System.out.println("JOINING ROOM FAILED");
                 }

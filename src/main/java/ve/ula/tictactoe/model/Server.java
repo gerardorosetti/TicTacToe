@@ -16,41 +16,20 @@ public class Server {
 
     public Server(int _port){
         this.port = _port;
+        rooms = new ArrayList<Room>();
     }
 
     public void listen() {
         System.out.println("SERVER STARTED");
         try {
-            rooms = new ArrayList<Room>();
             createRoom();
             createRoom();
             ServerSocket ss = new ServerSocket(port);
             while(true) {
                 Socket soc1 = ss.accept();
-                Socket soc2 = ss.accept();
                 Connection connection = new Connection(soc1);
-                Connection client = new Connection(soc2);
-                new Thread(() -> manageIndividualConnection(client)).start();
+                new Thread(() -> manageIndividualConnection(connection)).start();
                 new Thread(() -> sendCurrentRoomsInformation(connection)).start();
-/*
-                sockets[0] = soc1;
-                PrintWriter out1 = new PrintWriter(soc1.getOutputStream(), true);
-
-                System.out.println("Connection Established 1");
-                out1.println("WAITING");
-
-                Socket soc2 = ss.accept();
-                sockets[1] = soc2;
-
-                PrintWriter out2 = new PrintWriter(soc2.getOutputStream(), true);
-
-                System.out.println("Connection Established 2");
-                out1.println("START");
-                out2.println("START");
-
-                Room room = new Room(sockets);
-                Thread roomThread = new Thread(room);
-                roomThread.start();*/
             }
         } catch (Exception e) {
             e.printStackTrace();
