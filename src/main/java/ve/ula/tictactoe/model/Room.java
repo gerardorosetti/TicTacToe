@@ -46,7 +46,7 @@ public class Room implements Runnable{
         }
         if (playersConnections[0] == null) {
             playersConnections[0] = connection;
-            connection.sendMessage("JOINED");
+            //connection.sendMessage("JOINED");
             //playersConnections[0].sendMessage("player1");
         } else {
             playersConnections[1] = connection;

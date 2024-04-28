@@ -11,7 +11,6 @@ public class Server {
 
     //private Socket[] sockets = new Socket[2];
     private int port;
-    private List<Connection> connections;
     private List<Room> rooms;
     //private List<Thread> threads;
 
@@ -22,17 +21,17 @@ public class Server {
     public void listen() {
         System.out.println("SERVER STARTED");
         try {
-            connections = new ArrayList<Connection>();
             rooms = new ArrayList<Room>();
             createRoom();
-            //System.out.println("Waiting for players...");
+            createRoom();
             ServerSocket ss = new ServerSocket(port);
             while(true) {
                 Socket soc1 = ss.accept();
-
+                Socket soc2 = ss.accept();
                 Connection connection = new Connection(soc1);
-                connections.add(connection);
-                new Thread(() -> manageIndividualConnection(connection)).start();
+                Connection client = new Connection(soc2);
+                new Thread(() -> manageIndividualConnection(client)).start();
+                new Thread(() -> sendCurrentRoomsInformation(connection)).start();
 /*
                 sockets[0] = soc1;
                 PrintWriter out1 = new PrintWriter(soc1.getOutputStream(), true);
@@ -53,7 +52,6 @@ public class Server {
                 Thread roomThread = new Thread(room);
                 roomThread.start();*/
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,47 +59,24 @@ public class Server {
 
     private void createRoom() {
         Room newRoom = new Room();
-        //Thread newThread = new Thread(newRoom);
-        new Thread(newRoom).start();
         rooms.add(newRoom);
-        //threads.add(newThread);
     }
 
     private void manageIndividualConnection(Connection connection) {
         System.out.println("CONNECTION SUCCESSFULLY");
-        /*
-        String roomsListString = "";
-        for (int i = 0; i < rooms.size(); ++i) {
-            roomsListString += rooms.get(i).getRoomName();
-            if (i < rooms.size() - 1) {
-                roomsListString += "-";
-            }
-        }
-        connection.sendRoomsList(roomsListString);*/
-
-        new Thread(() -> sendCurrentRoomsInformation(connection)).start();
-
         String selectedRoom = connection.receiveMessage();
 
         for (Room room : rooms) {
-            //String current = Arrays.stream(room.getRoomName().split(" ")).toList().get(1);
-            //String selected = Arrays.stream(selectedRoom.split(" ")).toList().get(1);
-            if (room.getRoomName().equals(selectedRoom)) {
-            //if (current.equals(selected)) {
-                if (room.getNumPlayersConnected() < 2) {
-                    if (room.setPlayer(connection)) {
-                        room.startComunicationWithPlayer();
-                        System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
-                        //connection.sendMessage("JOINED");
-                        //room.startComunicationWithPlayer();
-                        //Platform.runLater(room::startComunicationWithPlayer);
-                        break;
-                    }
+            if (room.getRoomName().equals(selectedRoom) && room.getNumPlayersConnected() < 2) {
+                if (room.setPlayer(connection)) {
+                    connection.sendMessage("JOINED");
+                    room.startComunicationWithPlayer();
+                    new Thread(room).start();
+                    System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
+                } else {
+                    System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
+                    manageIndividualConnection(connection);
                 }
-                System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
-                connection.sendMessage("FAILED");
-                manageIndividualConnection(connection);
-                break;
             }
         }
     }
@@ -117,11 +92,6 @@ public class Server {
                 }
             }
             connection.sendRoomsList(roomsListString);
-            /*if (!connection.checkConnection()) {
-                //connection.disconnect();
-                System.out.println("DISCONNECTED");
-                break;
-            }*/
         }
     }
 

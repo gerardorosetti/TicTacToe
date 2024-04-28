@@ -55,11 +55,7 @@ public class Connection {
     }
 
     public void disconnect() {
-        /*try {
-            socketClient.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+
         try {
             if (socketClient != null && !socketClient.isClosed()) {
                 socketClient.close();

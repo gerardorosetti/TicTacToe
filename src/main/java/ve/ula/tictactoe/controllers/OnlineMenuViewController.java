@@ -1,6 +1,5 @@
 package ve.ula.tictactoe.controllers;
 
-import javafx.application.Platform;
 import javafx.concurrent.ScheduledService;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -10,7 +9,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import ve.ula.tictactoe.MainApplication;
 import ve.ula.tictactoe.model.Connection;
@@ -40,15 +38,20 @@ public class OnlineMenuViewController implements Initializable {
     ListView<String> roomsListView;
 
     private ScheduledService<Void> receiveRoomsList;
+    private ScheduledService<Void> receiveJoined;
     private final int port = 5900;
-    private Connection connection;
+    private Connection connectionRooms;
+    private Connection client;
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("CONNECTION SUCCESSFULLY");
         try {
             Socket socket = new Socket("localhost", port);
-            connection = new Connection(socket);
+            connectionRooms = new Connection(socket);
+            Socket socket1 = new Socket("localhost", port);
+            client = new Connection(socket1);
             //new Thread(this::updateRoomsList).start();
             receiveRoomsList = new ScheduledService<Void>() {
                 @Override
@@ -56,7 +59,7 @@ public class OnlineMenuViewController implements Initializable {
                     return new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                            String line = connection.receiveRoomsList();
+                            String line = connectionRooms.receiveRoomsList();
                             List<String> items = Arrays.stream(line.split("-")).toList();
 
                             javafx.application.Platform.runLater(() -> {
@@ -67,6 +70,30 @@ public class OnlineMenuViewController implements Initializable {
                                 }
                             });
 
+                            return null;
+                        }
+                    };
+
+                }
+            };
+            receiveJoined = new ScheduledService<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            String message = client.receiveMessage();
+                            if (message.equals("JOINED")) {
+                                System.out.println("JOINING ROOM SUCCESS");
+                                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
+                                Parent fxmlContent = loader.load();
+                                container.getChildren().clear();
+                                container.getChildren().add(fxmlContent);
+                                TicTacToeOnlineController TTTOC = loader.getController();
+                                TTTOC.setConnection(client);
+                            } else {
+                                System.out.println("JOINING ROOM FAILED");
+                            }
                             return null;
                         }
                     };
@@ -104,13 +131,10 @@ public class OnlineMenuViewController implements Initializable {
 
         joinRoomButton.setOnAction(e ->
         {
-            try {
+            try{
                 String selectedRoomName = roomsListView.getSelectionModel().getSelectedItem();
-                connection.sendMessage(selectedRoomName);
-                String message = connection.receiveMessage();
-                //String message = "JOINED";
-                System.out.println(message);
-                //while (message.equals())
+                client.sendMessage(selectedRoomName);
+                String message = client.receiveMessage();
                 if (message.equals("JOINED")) {
                     System.out.println("JOINING ROOM SUCCESS");
                     FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
@@ -118,50 +142,14 @@ public class OnlineMenuViewController implements Initializable {
                     container.getChildren().clear();
                     container.getChildren().add(fxmlContent);
                     TicTacToeOnlineController TTTOC = loader.getController();
-                    TTTOC.setConnection(connection);
+                    TTTOC.setConnection(client);
                 } else {
                     System.out.println("JOINING ROOM FAILED");
                 }
-            } catch (IOException exp) {
+            } catch (IOException exp){
                 exp.printStackTrace();
             }
+
         });
-
-        /*
-        Platform.runLater(() -> {
-            Stage stage = (Stage) container.getScene().getWindow();
-            stage.setOnCloseRequest(event -> {
-                connection.disconnect();
-            });
-        });*/
-
-
-        /*
-        button.setOnMouseClicked(mouseEvent -> {
-            setPlayerSymbol(button);
-            button.setDisable(true);
-            checkIfGameIsOver();
-        });*/
     }
-/*
-    private void updateRoomsList() {
-        System.out.println("STARTING UPDATING LIST OF ROOMS");
-        while (true) {
-            roomsListView.getItems().clear();
-            String message = connection.receiveRoomsList();
-            List<String> items = Arrays.stream(message.split("-")).toList();
-            roomsListView.getItems().addAll(items);
-            if (!keepUpdatingList) {
-                connection.sendRoomsList("stop");
-                break;
-            } else {
-                connection.sendRoomsList("keep");
-            }
-            try {
-                Thread.sleep(1000);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }*/
 }
