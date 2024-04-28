@@ -1,6 +1,7 @@
 module ve.ula.tictactoe {
     requires javafx.controls;
     requires javafx.fxml;
+    requires java.desktop;
 
 
     opens ve.ula.tictactoe to javafx.fxml;

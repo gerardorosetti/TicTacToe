@@ -31,7 +31,7 @@ public class MainMenuViewController implements Initializable {
         buttonLocal.setOnAction(e ->
         {
             try {
-                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeLocalView.fxml"));
+                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeGame.fxml"));
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
                 container.getChildren().add(fxmlContent);
