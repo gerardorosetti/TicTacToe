@@ -1,11 +1,8 @@
 package ve.ula.tictactoe.model;
-import javafx.application.Platform;
 
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-import java.util.function.Consumer;
 
 public class Server {
 
@@ -43,33 +40,38 @@ public class Server {
 
     private void manageIndividualConnection(Connection connection) {
         System.out.println("CONNECTION SUCCESSFULLY");
-
         Thread test = new Thread(() -> sendCurrentRoomsInformation(connection));
         test.start();
-
-        String selectedRoom = connection.receiveMessage();
-
-        //new Thread(() -> sendCurrentRoomsInformation(connection)).start();
-
-        for (Room room : rooms) {
-            if (room.getRoomName().equals(selectedRoom) && room.getNumPlayersConnected() < 2) {
-                if (room.setPlayer(connection)) {
-                    test.interrupt();
-                    /*try {
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }*/
-                    connection.resetIn();
-                    room.startComunicationWithPlayer();
-                    //new Thread(room).start();
-                    System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
-                } else {
-                    System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
-                    manageIndividualConnection(connection);
+        boolean going = true;
+        while (going) {
+            String message = connection.receiveMessage();
+            if (message.equals("CREATE")) {
+                createRoom();
+            } else {
+                for (Room room : rooms) {
+                    if (room.getRoomName().equals(message) && room.getNumPlayersConnected() < 2) {
+                        if (room.setPlayer(connection)) {
+                            test.interrupt();
+                            /*try {
+                                Thread.sleep(1000);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }*/
+                            connection.resetIn();
+                            room.startComunicationWithPlayer();
+                            //new Thread(room).start();
+                            System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
+                            going = false;
+                            break;
+                        } else {
+                            System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
+                            break;
+                        }
+                    }
                 }
             }
         }
+        test.interrupt();
     }
 
     private void sendCurrentRoomsInformation(Connection connection) {

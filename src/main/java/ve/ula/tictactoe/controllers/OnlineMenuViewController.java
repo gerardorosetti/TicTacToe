@@ -81,11 +81,12 @@ public class OnlineMenuViewController implements Initializable {
         createRoomButton.setOnAction(e ->
         {
             try {
-                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeLocalView.fxml"));
+                connectionRooms.sendMessage("CREATE");
+                /*FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeLocalView.fxml"));
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
-                container.getChildren().add(fxmlContent);
-            } catch (IOException exp) {
+                container.getChildren().add(fxmlContent);*/
+            } catch (Exception exp) {
                 exp.printStackTrace();
             }
         });
