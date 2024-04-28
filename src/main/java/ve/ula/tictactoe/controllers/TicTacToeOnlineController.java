@@ -47,6 +47,12 @@ public class TicTacToeOnlineController implements Initializable {
 
     private void setTexts() {
         String player = connection.receiveMessage();
+        //int i = 0;
+        /*while (!player.equals("player1")) {
+            System.out.println(++i);
+            player = connection.receiveMessage();
+        }*/
+        System.out.println("JUGADOR TESTING STRING: " + player);
         if (player.equals("player1")) {
             playerText.setText("X");
             playerChar = 'X';

@@ -14,9 +14,11 @@ public class Room implements Runnable{
     private final Connection[] playersConnections;
     private int numPlayersConnected;
     private boolean endThread;
+    private int id;
 
     public Room() {
-        roomName = "Room " + ++roomNumber + " | Current Players: " + numPlayersConnected;
+        id = ++roomNumber;
+        roomName = "Room " + id + " | Current Players: " + numPlayersConnected;
         playersConnections = new Connection[2];
         playersConnections[0] = null;
         playersConnections[1] = null;
@@ -53,7 +55,7 @@ public class Room implements Runnable{
             //playersConnections[1].sendMessage("player2");
         }
         //connection.sendMessage("JOINED");
-        ++numPlayersConnected;
+        roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected;
         return true;
     }
 
@@ -64,6 +66,9 @@ public class Room implements Runnable{
     @Override
     public void run() {
         while (!endThread) {
+            /*if (numPlayersConnected > 0) {
+                playersConnections[0].sendMessage("player1");
+            }*/
             if (numPlayersConnected >= 2) {
                 try {
                     while (!finished) {

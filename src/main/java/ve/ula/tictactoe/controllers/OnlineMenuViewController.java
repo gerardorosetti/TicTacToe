@@ -41,12 +41,12 @@ public class OnlineMenuViewController implements Initializable {
     private final int port = 5900;
     private Connection connectionRooms;
 
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("CONNECTION SUCCESSFULLY");
         try {
-            Socket socket = new Socket("localhost", port);
+            //Socket socket = new Socket("localhost", port);
+            Socket socket = new Socket("192.168.0.111", port);
             connectionRooms = new Connection(socket);
 
             receiveRoomsList = new ScheduledService<Void>() {
@@ -55,7 +55,7 @@ public class OnlineMenuViewController implements Initializable {
                     return new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                            String line = connectionRooms.receiveRoomsList();
+                            String line = connectionRooms.receiveMessage();
                             List<String> items = Arrays.stream(line.split("-")).toList();
 
                             javafx.application.Platform.runLater(() -> {
@@ -72,7 +72,7 @@ public class OnlineMenuViewController implements Initializable {
 
                 }
             };
-            receiveRoomsList.setPeriod(Duration.seconds(1));
+            receiveRoomsList.setPeriod(Duration.millis(1000));
             receiveRoomsList.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,11 +112,15 @@ public class OnlineMenuViewController implements Initializable {
                 if (playersCount < 2) {
                     System.out.println("JOINING ROOM SUCCESS");
                     FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
+
+                    //connectionRooms.resetIn();
+
                     Parent fxmlContent = loader.load();
                     container.getChildren().clear();
                     container.getChildren().add(fxmlContent);
                     TicTacToeOnlineController TTTOC = loader.getController();
                     TTTOC.setConnection(connectionRooms);
+                    receiveRoomsList.cancel();
                 } else {
                     System.out.println("JOINING ROOM FAILED");
                 }

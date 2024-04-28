@@ -29,7 +29,7 @@ public class Server {
                 Socket soc1 = ss.accept();
                 Connection connection = new Connection(soc1);
                 new Thread(() -> manageIndividualConnection(connection)).start();
-                new Thread(() -> sendCurrentRoomsInformation(connection)).start();
+                //new Thread(() -> sendCurrentRoomsInformation(connection)).start();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,14 +43,26 @@ public class Server {
 
     private void manageIndividualConnection(Connection connection) {
         System.out.println("CONNECTION SUCCESSFULLY");
+
+        Thread test = new Thread(() -> sendCurrentRoomsInformation(connection));
+        test.start();
+
         String selectedRoom = connection.receiveMessage();
+
+        //new Thread(() -> sendCurrentRoomsInformation(connection)).start();
 
         for (Room room : rooms) {
             if (room.getRoomName().equals(selectedRoom) && room.getNumPlayersConnected() < 2) {
                 if (room.setPlayer(connection)) {
-                    connection.sendMessage("JOINED");
+                    test.interrupt();
+                    /*try {
+                        Thread.sleep(100);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }*/
+                    connection.resetIn();
                     room.startComunicationWithPlayer();
-                    new Thread(room).start();
+                    //new Thread(room).start();
                     System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
                 } else {
                     System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
@@ -62,6 +74,14 @@ public class Server {
 
     private void sendCurrentRoomsInformation(Connection connection) {
         System.out.println("STARTING SENDING ROOMS INFORMATION");
+        String oldRoomsString = "";
+        for (int i = 0; i < rooms.size(); ++i) {
+            oldRoomsString += rooms.get(i).getRoomName();
+            if (i < rooms.size() - 1) {
+                oldRoomsString += "-";
+            }
+        }
+        connection.sendMessage(oldRoomsString);
         while (true) {
             String roomsListString = "";
             for (int i = 0; i < rooms.size(); ++i) {
@@ -70,7 +90,15 @@ public class Server {
                     roomsListString += "-";
                 }
             }
-            connection.sendRoomsList(roomsListString);
+            if (!oldRoomsString.equals(roomsListString)) {
+                /*try {
+                    Thread.sleep(500);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }*/
+                connection.sendMessage(roomsListString);
+                oldRoomsString = roomsListString;
+            }
         }
     }
 
