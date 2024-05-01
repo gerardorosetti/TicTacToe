@@ -4,7 +4,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class Room/* implements Runnable*/{
+public class Room implements Runnable{
 
     private static int roomNumber = 0;
     //private Socket[] players_socket = new Socket[2];
@@ -13,15 +13,19 @@ public class Room/* implements Runnable*/{
     private  String roomName = "";
     private final Connection[] playersConnections;
     private int numPlayersConnected;
+    private boolean endThread;
+    private int id;
 
     public Room() {
-        roomName = "Room-" + ++roomNumber;
+        id = ++roomNumber;
+        roomName = "Room " + id + " | Current Players: " + numPlayersConnected;
         playersConnections = new Connection[2];
         playersConnections[0] = null;
         playersConnections[1] = null;
         numPlayersConnected = 0;
         game = new TicTacToe();
         finished = false;
+        endThread = false;
     }
     /*public Room(Socket[] _players_socket){
         this.players_socket = _players_socket;
@@ -44,12 +48,14 @@ public class Room/* implements Runnable*/{
         }
         if (playersConnections[0] == null) {
             playersConnections[0] = connection;
+            //connection.sendMessage("JOINED");
             //playersConnections[0].sendMessage("player1");
         } else {
             playersConnections[1] = connection;
             //playersConnections[1].sendMessage("player2");
         }
-        ++numPlayersConnected;
+        //connection.sendMessage("JOINED");
+        roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected;
         return true;
     }
 
@@ -57,60 +63,63 @@ public class Room/* implements Runnable*/{
         return numPlayersConnected;
     }
 
-    /*@Override
+    @Override
     public void run() {
-        try {
-            Socket soc1 = players_socket[0];
-            Socket soc2 = players_socket[1];
+        while (!endThread) {
+            /*if (numPlayersConnected > 0) {
+                playersConnections[0].sendMessage("player1");
+            }*/
+            if (numPlayersConnected >= 2) {
+                try {
+                    while (!finished) {
+                        playersConnections[0].sendMessage("PLAY");
+                        String message1 = playersConnections[0].receiveMessage();
+                        String[] parts = message1.split(" ");
 
-            PrintWriter out1 = new PrintWriter(soc1.getOutputStream(), true);
-            PrintWriter out2 = new PrintWriter(soc2.getOutputStream(), true);
+                        char player = 'X';
+                        int row = Integer.parseInt(parts[0]);
+                        int col = Integer.parseInt(parts[1]);
 
-            BufferedReader in1 = new BufferedReader(new InputStreamReader(soc1.getInputStream()));
-            BufferedReader in2 = new BufferedReader(new InputStreamReader(soc2.getInputStream()));
-            while (!finished) {
+                        game.makeMove(row, col, player);
+                        game.show_board();
+                        finished = game.isGameOver();
+                        if (finished) {
+                            for (short i = 0; i < 2; ++i) {
+                                playersConnections[i].sendMessage("GAMEOVER");
+                            }
+                            continue;
+                        }
 
-                out1.println("PLAY");
-                String message1 = in1.readLine();
-                String[] parts = message1.split(" ");
+                        playersConnections[1].sendMessage("PLAY");
+                        String message2 = playersConnections[1].receiveMessage();
+                        parts = message2.split(" ");
 
-                char player = 'X';//parts[0].charAt(0);
-                int row = Integer.parseInt(parts[0]);
-                int col = Integer.parseInt(parts[1]);
+                        char player2 = 'O';
+                        row = Integer.parseInt(parts[0]);
+                        col = Integer.parseInt(parts[1]);
 
-                //PrintWriter out = new PrintWriter(soc1.getOutputStream(), true);
-                game.makeMove(row, col, player);
-                game.show_board();
-                finished = game.isGameOver();
-                if (finished) {
-                    out1.println("GAMEOVER");
-                    out2.println("GAMEOVER");
-                    continue;
+                        game.makeMove(row, col, player2);
+                        game.show_board();
+                        finished = game.isGameOver();
+                        if (finished) {
+                            for (short i = 0; i < 2; ++i) {
+                                playersConnections[i].sendMessage("GAMEOVER");
+                            }
+                            continue;
+                        }
+                        for (short i = 0; i < 2; ++i) {
+                            playersConnections[i].sendMessage("KEEP PLAYING");
+                        }
+                    }
+                    game.reset();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-
-                out2.println("PLAY");
-                String message2 = in2.readLine();
-                parts = message2.split(" ");
-
-                char player2 = 'O';//parts[0].charAt(0);
-                row = Integer.parseInt(parts[0]);
-                col = Integer.parseInt(parts[1]);
-
-                //PrintWriter out = new PrintWriter(soc1.getOutputStream(), true);
-                game.makeMove(row, col, player2);
-                game.show_board();
-                finished = game.isGameOver();
-                if (finished) {
-                    out1.println("GAMEOVER");
-                    out2.println("GAMEOVER");
-                    continue;
-                }
-
-                out1.println("KEEP PLAYING");
-                out2.println("KEEP PLAYING");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-    }*/
+    }
+
+    public void endThreadExecution() {
+        endThread = true;
+    }
 }

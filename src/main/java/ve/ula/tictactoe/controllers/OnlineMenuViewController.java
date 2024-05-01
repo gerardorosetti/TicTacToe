@@ -1,5 +1,7 @@
 package ve.ula.tictactoe.controllers;
 
+import javafx.concurrent.ScheduledService;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -7,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import ve.ula.tictactoe.MainApplication;
 import ve.ula.tictactoe.model.Connection;
 
@@ -34,17 +37,42 @@ public class OnlineMenuViewController implements Initializable {
     @FXML
     ListView<String> roomsListView;
 
-    //private Socket socket;
+    private ScheduledService<Void> receiveRoomsList;
     private final int port = 5900;
-    private Connection connection;
+    //private Connection connectionRooms;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        System.out.println("CONNECTION SUCCESSFULLY");
         try {
-            Socket socket = new Socket("localhost", port);
-            connection = new Connection(socket);
-            updateRoomsList();
+            receiveRoomsList = new ScheduledService<Void>() {
+                @Override
+                protected Task<Void> createTask() {
+                    return new Task<Void>() {
+                        @Override
+                        protected Void call() throws Exception {
+                            Socket soc = new Socket("localhost",port);
+                            Connection clientConnection = new Connection(soc);
+                            clientConnection.sendMessage("SEND ROOMS");
+                            String line = clientConnection.receiveMessage();
+                            List<String> items = Arrays.stream(line.split("-")).toList();
+
+                            javafx.application.Platform.runLater(() -> {
+                                List<String> current = roomsListView.getItems().stream().toList();
+                                if (!current.equals(items)) {
+                                    roomsListView.getItems().clear();
+                                    roomsListView.getItems().addAll(items);
+                                }
+                            });
+                            clientConnection.disconnect();
+                            return null;
+                        }
+                    };
+
+                }
+            };
+            receiveRoomsList.setPeriod(Duration.millis(1000));
+            receiveRoomsList.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -52,11 +80,11 @@ public class OnlineMenuViewController implements Initializable {
         createRoomButton.setOnAction(e ->
         {
             try {
-                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeLocalView.fxml"));
-                Parent fxmlContent = loader.load();
-                container.getChildren().clear();
-                container.getChildren().add(fxmlContent);
-            } catch (IOException exp) {
+                Socket soc = new Socket("localhost", port);
+                Connection clientConnection = new Connection(soc);
+                clientConnection.sendMessage("CREATE");
+                clientConnection.disconnect();
+            } catch (Exception exp) {
                 exp.printStackTrace();
             }
         });
@@ -68,7 +96,6 @@ public class OnlineMenuViewController implements Initializable {
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
                 container.getChildren().add(fxmlContent);
-                //container.getScene().getStylesheets().add(MainApplication.class.getResource("MainMenuView.css").toExternalForm());
             } catch (IOException exp) {
                 exp.printStackTrace();
             }
@@ -76,38 +103,30 @@ public class OnlineMenuViewController implements Initializable {
 
         joinRoomButton.setOnAction(e ->
         {
-            try {
+            try{
+                Socket soc = new Socket("localhost", port);
+                Connection clientConnection = new Connection(soc);
                 String selectedRoomName = roomsListView.getSelectionModel().getSelectedItem();
-
-                connection.sendMessage(selectedRoomName);
-                String message = connection.receiveMessage();
-                if (message.equals("JOINED")) {
+                clientConnection.sendMessage(selectedRoomName);
+                int playersCount = Integer.parseInt(selectedRoomName.split("Current Players: ")[1]);
+                System.out.println("Número de jugadores actuales: " + playersCount);
+                if (playersCount < 2) {
                     System.out.println("JOINING ROOM SUCCESS");
                     FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
                     Parent fxmlContent = loader.load();
                     container.getChildren().clear();
                     container.getChildren().add(fxmlContent);
                     TicTacToeOnlineController TTTOC = loader.getController();
-                    TTTOC.setConnection(connection);
+                    TTTOC.setConnection(clientConnection);
+                    receiveRoomsList.cancel();
                 } else {
                     System.out.println("JOINING ROOM FAILED");
                 }
-            } catch (IOException exp) {
+                clientConnection.disconnect();
+            } catch (IOException exp){
                 exp.printStackTrace();
             }
-        });
-        /*
-        button.setOnMouseClicked(mouseEvent -> {
-            setPlayerSymbol(button);
-            button.setDisable(true);
-            checkIfGameIsOver();
-        });*/
-    }
 
-    private void updateRoomsList() {
-        roomsListView.getItems().clear();
-        String message = connection.receiveMessage();
-        List<String> items = Arrays.stream(message.split(" ")).toList();
-        roomsListView.getItems().addAll(items);
+        });
     }
 }

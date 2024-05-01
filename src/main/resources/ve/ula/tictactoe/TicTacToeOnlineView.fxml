@@ -6,29 +6,18 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="20" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="ve.ula.tictactoe.controllers.TicTacToeOnlineController">
+<VBox fx:id="container" spacing="20" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="ve.ula.tictactoe.controllers.TicTacToeOnlineController">
     <HBox alignment="CENTER">
-        <Text text="Player 1:" textAlignment="CENTER">
+        <Text text="Player :" textAlignment="CENTER">
             <font>
                 <Font size="39.0" />
             </font>
         </Text>
-        <Text fx:id="player1" textAlignment="CENTER">
+        <Text fx:id="playerText" textAlignment="CENTER">
             <font>
                 <Font size="39.0" />
             </font>
         </Text>
-    </HBox>
-    <HBox alignment="CENTER">
-        <Text text="Player 2:" textAlignment="CENTER">
-            <font>
-                <Font size="39.0" />
-            </font>
-        </Text>
-        <Text fx:id="player2" textAlignment="CENTER">
-            <font>
-                <Font size="39.0" />
-            </font>
-        </Text>
+        <Button fx:id="leaveButton" text="Leave Game" textAlignment="CENTER"/>
     </HBox>
 </VBox>
