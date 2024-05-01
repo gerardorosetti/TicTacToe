@@ -28,6 +28,7 @@ public class Server {
     private void createRoom() {
         Room newRoom = new Room();
         rooms.add(newRoom);
+        //new Thread(newRoom).start();
     }
 
     private void manageIndividualConnection(Connection connection, String message) {
@@ -37,7 +38,9 @@ public class Server {
                 if (room.setPlayer(connection)){
                     //connection.resetIn();
                     room.startComunicationWithPlayer();
-                    new Thread(room).start();
+                    if (room.getNumPlayersConnected() >= 2) {
+                        new Thread(room).start();
+                    }
                     System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
                 } else {
                     System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");

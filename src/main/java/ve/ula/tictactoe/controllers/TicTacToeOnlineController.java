@@ -109,7 +109,6 @@ public class TicTacToeOnlineController implements Initializable {
             }
         });
 
-        //game(gc);
         graphicsContext = gc;
     }
 
@@ -124,8 +123,6 @@ public class TicTacToeOnlineController implements Initializable {
             playerChar = 'O';
         }
         canPlay = false;
-        //game(graphicsContext);
-        //new Thread()
     }
 
     private void game() {
@@ -150,22 +147,12 @@ public class TicTacToeOnlineController implements Initializable {
                 }
                 canPlay = true;
             } else {
-                //String update = connection.receiveMessage();
-                /*updateBoard(boardStr);
-                for (int i = 0; i < 3; ++i) {
-                    for (int j = 0; j < 3; ++j) {
-                        if (board.getCharAt(i, j) == 'X') {
-                            fakePlay(f, i, j, 'X');
-                        } else if (board.getCharAt(i, j) == 'O') {
-                            fakePlay(f, i, j, 'O');
-                        }
-                    }
-                }*/
                 connection.sendMessage("NOTHING");
             }
             System.out.println(canPlay);
         }
         connection.sendMessage("GAMEOVER");
+        connection.disconnect();
     }
 
     private void updateBoard(String boardStr) {
