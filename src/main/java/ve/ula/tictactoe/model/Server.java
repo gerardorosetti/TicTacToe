@@ -35,9 +35,9 @@ public class Server {
         for (Room room : rooms) {
             if (room.getRoomName().equals(message) && room.getNumPlayersConnected() < 2) {
                 if (room.setPlayer(connection)){
-                    connection.resetIn();
+                    //connection.resetIn();
                     room.startComunicationWithPlayer();
-                    new Thread(room).start();
+                    //new Thread(room).start();
                     System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
                 } else {
                     System.out.println("Player try to join to the room " + room.getRoomName() + " FAILED");
@@ -52,12 +52,14 @@ public class Server {
         String message = connection.receiveMessage();
         if(message.equals("SEND ROOMS")){
             sendCurrentRoomsInformation(connection);
+            connection.disconnect();
         } else if (message.equals("CREATE")) {
             createRoom();
+            connection.disconnect();
         }else {
             manageIndividualConnection(connection, message);
         }
-        connection.disconnect();
+        //connection.disconnect();
     }
 
     public void listen() {

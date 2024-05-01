@@ -29,7 +29,7 @@ public class TicTacToeGameController implements Initializable {
     @FXML
     public Button reset;
     @FXML
-    private AnchorPane pane;
+    private VBox pane;
     @FXML
     private Canvas myCanvas;
 
