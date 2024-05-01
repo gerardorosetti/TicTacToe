@@ -5,19 +5,32 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.canvas.Canvas?>
 
 <VBox fx:id="container" spacing="20" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="ve.ula.tictactoe.controllers.TicTacToeOnlineController">
     <HBox alignment="CENTER">
-        <Text text="Player :" textAlignment="CENTER">
-            <font>
-                <Font size="39.0" />
-            </font>
-        </Text>
-        <Text fx:id="playerText" textAlignment="CENTER">
-            <font>
-                <Font size="39.0" />
-            </font>
-        </Text>
-        <Button fx:id="leaveButton" text="Leave Game" textAlignment="CENTER"/>
+        <HBox alignment="CENTER">
+            <Text text="Player :" textAlignment="CENTER">
+                <font>
+                    <Font size="39.0" />
+                </font>
+            </Text>
+            <Text fx:id="playerText" textAlignment="CENTER">
+                <font>
+                    <Font size="39.0" />
+                </font>
+            </Text>
+        </HBox>
+        <VBox alignment="CENTER">
+            <Canvas fx:id="myCanvas" layoutX="50" layoutY="50" width="600" height="600"/>
+        </VBox>
+        <VBox alignment="CENTER">
+            <Text fx:id="winnerText" strokeType="OUTSIDE" strokeWidth="0.0" text="Tic-Tac-Toe" textAlignment="CENTER" wrappingWidth="237.9443359375">
+                <font>
+                    <Font size="39.0" />
+                </font>
+            </Text>
+            <Button fx:id="leaveButton" text="Leave Game" textAlignment="CENTER"/>
+        </VBox>
     </HBox>
 </VBox>

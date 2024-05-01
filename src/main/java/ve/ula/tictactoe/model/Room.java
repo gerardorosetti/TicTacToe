@@ -71,7 +71,18 @@ public class Room implements Runnable{
             }*/
             if (numPlayersConnected >= 2) {
                 try {
+                    System.out.println("GAME STARTED");
+                    String board = "1_________";
+                    System.out.println(board);
                     while (!finished) {
+                        sendMessageToAll(board);
+                        System.out.println("MESSAGE SEND");
+                        board = getPlayFromConnections();
+                        if (board.equals("GAMEOVER")) {
+                            finished = true;
+                        }
+                        System.out.println(board);
+                        /*
                         playersConnections[0].sendMessage("PLAY");
                         String message1 = playersConnections[0].receiveMessage();
                         String[] parts = message1.split(" ");
@@ -110,13 +121,43 @@ public class Room implements Runnable{
                         for (short i = 0; i < 2; ++i) {
                             playersConnections[i].sendMessage("KEEP PLAYING");
                         }
+                        */
                     }
                     game.reset();
+                    finished = false;
+                    removePlayers();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    private void sendMessageToAll(String str) {
+        for (int i = 0; i < 2; ++i) {
+            playersConnections[i].sendMessage(str);
+        }
+    }
+
+    private String getPlayFromConnections() {
+        String player1 = playersConnections[0].receiveMessage();
+        String player2 = playersConnections[1].receiveMessage();
+        if (player1.equals("GAMEOVER") || player2.equals("GAMEOVER")) {
+            return "GAMEOVER";
+        } else if (player1.equals("NOTHING")) {
+            return player2;
+        } else {
+            return player1;
+        }
+    }
+
+    private void removePlayers() {
+        for (int i = 0; i < 2; ++i) {
+            playersConnections[i].disconnect();
+            playersConnections[i] = null;
+            --numPlayersConnected;
+        }
+        roomName = "Room " + id + " | Current Players: " + numPlayersConnected;
     }
 
     public void endThreadExecution() {

@@ -1,20 +1,22 @@
 package ve.ula.tictactoe.controllers;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import ve.ula.tictactoe.MainApplication;
+import ve.ula.tictactoe.model.Board;
 import ve.ula.tictactoe.model.Connection;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class TicTacToeOnlineController implements Initializable {
@@ -26,11 +28,74 @@ public class TicTacToeOnlineController implements Initializable {
     @FXML
     private VBox container;
 
+    @FXML
+    public Text winnerText;
+    @FXML
+    private Canvas myCanvas;
+
+    private double cellWidth;
+    private double cellHeight;
+
+    private double imageWidth;
+    private double imageHeight;
+
+    private double imageXOffset;
+    private double imageYOffset;
+
+    private int playerTurn = 1;
+
+    private Image xImage;
+    private Image oImage;
+
+    int winningPlayer = 0;
+    int gameOverResult;
+
+    private static final double IMAGE_SCALE = 0.75;
+
     private char playerChar;
     private Connection connection;
+    private boolean canPlay;
+    private Board board;
+    private GraphicsContext graphicsContext;
+    private Thread gameThread;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        board = new Board();
+
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                board.set(i, j, '_');
+            }
+        }
+
+        cellWidth = myCanvas.getWidth() / 3;
+        cellHeight = myCanvas.getHeight() / 3;
+
+        imageWidth = cellWidth * IMAGE_SCALE;
+        imageHeight = cellHeight * IMAGE_SCALE;
+
+        imageXOffset = (cellWidth - imageWidth) / 2;
+        imageYOffset = (cellHeight - imageHeight) / 2;
+
+        Image myImage = new Image(Objects.requireNonNull(MainApplication.class.getResource("img/board.png")).toString());
+        xImage = new Image(Objects.requireNonNull(MainApplication.class.getResource("img/x.png")).toString());
+        oImage = new Image(Objects.requireNonNull(MainApplication.class.getResource("img/o.png")).toString());
+
+        GraphicsContext gc = myCanvas.getGraphicsContext2D();
+        gc.drawImage(myImage, 0, 0, myCanvas.getWidth(), myCanvas.getHeight());
+
+        myCanvas.setOnMouseClicked(mouseEvent -> {
+            if (gameOverResult != 0 || !canPlay) {
+                return;
+            }
+            int row = (int) (mouseEvent.getY() / cellHeight);
+            int col = (int) (mouseEvent.getX() / cellWidth);
+
+            play(gc, row, col);
+        });
+
         leaveButton.setOnAction(e ->
         {
             try {
@@ -43,15 +108,13 @@ public class TicTacToeOnlineController implements Initializable {
                 exp.printStackTrace();
             }
         });
+
+        //game(gc);
+        graphicsContext = gc;
     }
 
     private void setTexts() {
         String player = connection.receiveMessage();
-        //int i = 0;
-        /*while (!player.equals("player1")) {
-            System.out.println(++i);
-            player = connection.receiveMessage();
-        }*/
         System.out.println("JUGADOR TESTING STRING: " + player);
         if (player.equals("player1")) {
             playerText.setText("X");
@@ -60,10 +123,158 @@ public class TicTacToeOnlineController implements Initializable {
             playerText.setText("O");
             playerChar = 'O';
         }
+        canPlay = false;
+        //game(graphicsContext);
+        //new Thread()
+    }
+
+    private void game() {
+        GraphicsContext f = graphicsContext;
+        System.out.println("GAME STARTED LOCALLY");
+        while (gameOverResult != 1 && gameOverResult != -1) {
+            String message = connection.receiveMessage();
+            String boardStr = message.substring(1);
+            System.out.println(message);
+            System.out.println(boardStr);
+            if (message.charAt(0) == '1' && playerChar == 'X'
+            || message.charAt(0) == '2' && playerChar == 'O') {
+                updateBoard(boardStr);
+                for (int i = 0; i < 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (board.getCharAt(i, j) == 'X') {
+                            fakePlay(f, i, j, 'X');
+                        } else if (board.getCharAt(i, j) == 'O') {
+                            fakePlay(f, i, j, 'O');
+                        }
+                    }
+                }
+                canPlay = true;
+            } else {
+                //String update = connection.receiveMessage();
+                /*updateBoard(boardStr);
+                for (int i = 0; i < 3; ++i) {
+                    for (int j = 0; j < 3; ++j) {
+                        if (board.getCharAt(i, j) == 'X') {
+                            fakePlay(f, i, j, 'X');
+                        } else if (board.getCharAt(i, j) == 'O') {
+                            fakePlay(f, i, j, 'O');
+                        }
+                    }
+                }*/
+                connection.sendMessage("NOTHING");
+            }
+            System.out.println(canPlay);
+        }
+        connection.sendMessage("GAMEOVER");
+    }
+
+    private void updateBoard(String boardStr) {
+        for (int i = 0, k = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j, ++k) {
+                board.set(i, j, boardStr.charAt(k));
+            }
+        }
+    }
+
+    private void fakePlay(GraphicsContext f, int r, int c, char player) {
+
+        int x = (int) (cellWidth * c + imageXOffset);
+        int y = (int) (cellHeight * r + imageYOffset);
+
+        if (player == 'X') {
+            f.drawImage(xImage, x, y, imageWidth, imageHeight);
+            gameOverResult = board.isGameOver();
+            if (gameOverResult == 1) {
+                winningPlayer = 1;
+            } else {
+                playerTurn = 2;
+            }
+        } else {
+            f.drawImage(oImage, x, y, imageWidth, imageHeight);
+            gameOverResult = board.isGameOver();
+            if (gameOverResult == 1) {
+                winningPlayer = 2;
+            } else {
+                playerTurn = 1;
+            }
+        }
+
+        if (gameOverResult == 1) {
+            if (winningPlayer == 1) {
+                winnerText.setText("Player X won!!");
+            } else {
+                winnerText.setText("Player O won!!");
+            }
+        } else if (gameOverResult == -1) {
+            winnerText.setText("Game tied!!");
+        }
+    }
+
+    private void play(GraphicsContext f, int r, int c) {
+
+        if (board.getCharAt(r, c) != '_') {
+            return;
+        }
+
+        int x = (int) (cellWidth * c + imageXOffset);
+        int y = (int) (cellHeight * r + imageYOffset);
+        if (playerChar == 'X') {
+            //charBoard[r][c] = 'X';
+            board.set(r, c, 'X');
+            f.drawImage(xImage, x, y, imageWidth, imageHeight);
+            connection.sendMessage(getBoardStr());
+            gameOverResult = board.isGameOver();
+            if (gameOverResult == 1) {
+                winningPlayer = 1;
+            } else {
+                playerTurn = 2;
+            }
+        } else {
+            //charBoard[r][c] = 'O';
+            board.set(r, c, 'O');
+            f.drawImage(oImage, x, y, imageWidth, imageHeight);
+            connection.sendMessage(getBoardStr());
+            /*if (result.equals("1") || result.equals("-1")) {
+                gameOverResult = Integer.parseInt(result);
+            } else {
+                gameOverResult = 0;
+            }*/
+            gameOverResult = board.isGameOver();
+            if (gameOverResult == 1) {
+                winningPlayer = 2;
+            } else {
+                playerTurn = 1;
+            }
+        }
+
+        if (gameOverResult == 1) {
+            if (winningPlayer == 1) {
+                winnerText.setText("Player X won!!");
+            } else {
+                winnerText.setText("Player O won!!");
+            }
+        } else if (gameOverResult == -1) {
+            winnerText.setText("Game tied!!");
+        }
+
+        canPlay = false;
+    }
+
+    private String getBoardStr() {
+        String result = playerChar == 'X' ? "2" : "1";
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                result += board.getCharAt(i, j);//charBoard[i][j];
+            }
+        }
+        return result;
     }
 
     public void setConnection(Connection connection) {
         this.connection = connection;
         setTexts();
+        //game(graphicsContext);
+        gameThread = new Thread(this::game);
+        gameThread.start();
     }
 }

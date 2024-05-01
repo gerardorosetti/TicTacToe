@@ -8,8 +8,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
-<VBox fx:id="pane"
-            xmlns="http://javafx.com/javafx"
+<VBox xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             alignment="CENTER"
             fx:controller="ve.ula.tictactoe.controllers.TicTacToeGameController" >

@@ -3,6 +3,7 @@ package ve.ula.tictactoe.model;
 public class Board {
     public final static int NUM_ROWS = 3;
     public final static int NUM_COLS = 3;
+    private final char blank = '_';
 
     private char[][] board;
 
@@ -11,10 +12,14 @@ public class Board {
         reset();
     }
 
+    public char getCharAt(int i, int j) {
+        return board[i][j];
+    }
+
     public void reset() {
         for (int i = 0; i < NUM_ROWS; ++i) {
             for (int j = 0; j < NUM_COLS; ++j) {
-                board[i][j] = ' ';
+                board[i][j] = blank;
             }
         }
     }
@@ -24,7 +29,7 @@ public class Board {
             return false;
         }
 
-        if (board[r][c] != ' ') {
+        if (board[r][c] != blank) {
             return false;
         }
 
@@ -35,7 +40,7 @@ public class Board {
     private boolean checkRow(int i) {
         char c = board[i][0];
 
-        if (c == ' ') {
+        if (c == blank) {
             return false;
         }
 
@@ -51,7 +56,7 @@ public class Board {
     private boolean checkCol(int j) {
         char c = board[0][j];
 
-        if (c == ' ') {
+        if (c == blank) {
             return false;
         }
 
@@ -77,17 +82,17 @@ public class Board {
             }
         }
 
-        if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] != ' ') {
+        if (board[0][0] == board[1][1] && board[1][1] == board[2][2] && board[2][2] != blank) {
             return 1;
         }
 
-        if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[2][0] != ' ') {
+        if (board[0][2] == board[1][1] && board[1][1] == board[2][0] && board[2][0] != blank) {
             return 1;
         }
 
         for (int i = 0; i < NUM_ROWS; ++i) {
             for (int j = 0; j < NUM_COLS; ++j) {
-                if (board[i][j] == ' ') {
+                if (board[i][j] == blank) {
                     return 0;
                 }
             }
