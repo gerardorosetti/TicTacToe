@@ -34,3 +34,7 @@
 .button:pressed {
     -fx-background-color: #388E3C;
 }
+
+.button.action:disabled {
+    -fx-background-color: #eaf721;
+}

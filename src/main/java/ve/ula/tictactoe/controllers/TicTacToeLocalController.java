@@ -4,6 +4,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 
 import java.net.URL;
@@ -12,6 +14,11 @@ import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class TicTacToeLocalController implements Initializable {
+
+    Image tableroImage = new Image("file:src/resources/ve.ula.tictactoe/img/board.png");
+
+    @FXML
+    private ImageView imageView = new ImageView(tableroImage);
 
     @FXML
     private Button button1;
@@ -85,7 +92,7 @@ public class TicTacToeLocalController implements Initializable {
             playerTurn = 0;
         }
     }
-    int i = 0;
+
     public void checkIfGameIsOver(){
         for (int a = 0; a < 8; a++) {
             String line = switch (a) {
@@ -99,6 +106,9 @@ public class TicTacToeLocalController implements Initializable {
                 case 7 -> button3.getText() + button6.getText() + button9.getText();
                 default -> null;
             };
+
+
+
             //X winner
             if (line.equals("XXX")) {
                 winnerText.setText("X won!");
@@ -121,6 +131,7 @@ public class TicTacToeLocalController implements Initializable {
 
     public void disableButtons() {
         button1.setDisable(true);
+        button1.getStyleClass().add("action");
         button2.setDisable(true);
         button3.setDisable(true);
         button4.setDisable(true);
