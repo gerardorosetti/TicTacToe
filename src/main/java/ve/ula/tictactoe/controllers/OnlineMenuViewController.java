@@ -39,23 +39,22 @@ public class OnlineMenuViewController implements Initializable {
 
     private ScheduledService<Void> receiveRoomsList;
     private final int port = 5900;
-    private Connection connectionRooms;
+    //private Connection connectionRooms;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("CONNECTION SUCCESSFULLY");
         try {
-            //Socket socket = new Socket("localhost", port);
-            Socket socket = new Socket("192.168.0.111", port);
-            connectionRooms = new Connection(socket);
-
             receiveRoomsList = new ScheduledService<Void>() {
                 @Override
                 protected Task<Void> createTask() {
                     return new Task<Void>() {
                         @Override
                         protected Void call() throws Exception {
-                            String line = connectionRooms.receiveMessage();
+                            Socket soc = new Socket("localhost",port);
+                            Connection clientConnection = new Connection(soc);
+                            clientConnection.sendMessage("SEND ROOMS");
+                            String line = clientConnection.receiveMessage();
                             List<String> items = Arrays.stream(line.split("-")).toList();
 
                             javafx.application.Platform.runLater(() -> {
@@ -65,7 +64,7 @@ public class OnlineMenuViewController implements Initializable {
                                     roomsListView.getItems().addAll(items);
                                 }
                             });
-
+                            clientConnection.disconnect();
                             return null;
                         }
                     };
@@ -81,11 +80,10 @@ public class OnlineMenuViewController implements Initializable {
         createRoomButton.setOnAction(e ->
         {
             try {
-                connectionRooms.sendMessage("CREATE");
-                /*FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeLocalView.fxml"));
-                Parent fxmlContent = loader.load();
-                container.getChildren().clear();
-                container.getChildren().add(fxmlContent);*/
+                Socket soc = new Socket("localhost", port);
+                Connection clientConnection = new Connection(soc);
+                clientConnection.sendMessage("CREATE");
+                clientConnection.disconnect();
             } catch (Exception exp) {
                 exp.printStackTrace();
             }
@@ -106,25 +104,25 @@ public class OnlineMenuViewController implements Initializable {
         joinRoomButton.setOnAction(e ->
         {
             try{
+                Socket soc = new Socket("localhost", port);
+                Connection clientConnection = new Connection(soc);
                 String selectedRoomName = roomsListView.getSelectionModel().getSelectedItem();
-                connectionRooms.sendMessage(selectedRoomName);
+                clientConnection.sendMessage(selectedRoomName);
                 int playersCount = Integer.parseInt(selectedRoomName.split("Current Players: ")[1]);
                 System.out.println("Número de jugadores actuales: " + playersCount);
                 if (playersCount < 2) {
                     System.out.println("JOINING ROOM SUCCESS");
                     FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
-
-                    //connectionRooms.resetIn();
-
                     Parent fxmlContent = loader.load();
                     container.getChildren().clear();
                     container.getChildren().add(fxmlContent);
                     TicTacToeOnlineController TTTOC = loader.getController();
-                    TTTOC.setConnection(connectionRooms);
+                    TTTOC.setConnection(clientConnection);
                     receiveRoomsList.cancel();
                 } else {
                     System.out.println("JOINING ROOM FAILED");
                 }
+                clientConnection.disconnect();
             } catch (IOException exp){
                 exp.printStackTrace();
             }
