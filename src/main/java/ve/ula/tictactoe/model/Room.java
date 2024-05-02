@@ -11,7 +11,8 @@ public class Room implements Runnable{
     private boolean finished;
     private TicTacToe game;
     private  String roomName = "";
-    private final Connection[] playersConnections;
+    //private final Connection[] playersConnections;
+    private Connection[] playersConnections;
     private int numPlayersConnected;
     private boolean endThread;
     private int id;
@@ -65,63 +66,20 @@ public class Room implements Runnable{
 
     @Override
     public void run() {
-        while (!endThread) {
-            /*if (numPlayersConnected > 0) {
-                playersConnections[0].sendMessage("player1");
-            }*/
-            if (numPlayersConnected >= 2) {
+        //while (!endThread) {
+            //if (numPlayersConnected >= 2) {
                 try {
                     System.out.println("GAME STARTED");
                     String board = "1_________";
                     System.out.println(board);
                     while (!finished) {
                         sendMessageToAll(board);
-                        System.out.println("MESSAGE SEND");
+                        //System.out.println("MESSAGE SEND");
                         board = getPlayFromConnections();
                         if (board.equals("GAMEOVER")) {
                             finished = true;
                         }
                         System.out.println(board);
-                        /*
-                        playersConnections[0].sendMessage("PLAY");
-                        String message1 = playersConnections[0].receiveMessage();
-                        String[] parts = message1.split(" ");
-
-                        char player = 'X';
-                        int row = Integer.parseInt(parts[0]);
-                        int col = Integer.parseInt(parts[1]);
-
-                        game.makeMove(row, col, player);
-                        game.show_board();
-                        finished = game.isGameOver();
-                        if (finished) {
-                            for (short i = 0; i < 2; ++i) {
-                                playersConnections[i].sendMessage("GAMEOVER");
-                            }
-                            continue;
-                        }
-
-                        playersConnections[1].sendMessage("PLAY");
-                        String message2 = playersConnections[1].receiveMessage();
-                        parts = message2.split(" ");
-
-                        char player2 = 'O';
-                        row = Integer.parseInt(parts[0]);
-                        col = Integer.parseInt(parts[1]);
-
-                        game.makeMove(row, col, player2);
-                        game.show_board();
-                        finished = game.isGameOver();
-                        if (finished) {
-                            for (short i = 0; i < 2; ++i) {
-                                playersConnections[i].sendMessage("GAMEOVER");
-                            }
-                            continue;
-                        }
-                        for (short i = 0; i < 2; ++i) {
-                            playersConnections[i].sendMessage("KEEP PLAYING");
-                        }
-                        */
                     }
                     game.reset();
                     finished = false;
@@ -129,8 +87,8 @@ public class Room implements Runnable{
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            }
-        }
+            //}
+        //}
     }
 
     private void sendMessageToAll(String str) {
