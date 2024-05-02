@@ -42,7 +42,7 @@ public class OnlineMenuViewController implements Initializable {
 
     private ScheduledService<Void> receiveRoomsList;
     private final int port = 5900;
-    private final String host = "localhost";
+    private final String host = "192.168.0.111";
     //private final InetSocketAddress address = new InetSocketAddress("localhost", 5900);
     private Socket socket;
     private Lock lock;

@@ -11,7 +11,8 @@
 <VBox xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             alignment="CENTER"
-            fx:controller="ve.ula.tictactoe.controllers.TicTacToeGameController" >
+            fx:controller="ve.ula.tictactoe.controllers.TicTacToeGameController"
+            fx:id="container">
     <VBox alignment="CENTER">
         <Text fx:id="winnerText" strokeType="OUTSIDE" strokeWidth="0.0" text="Tic-Tac-Toe" textAlignment="CENTER" wrappingWidth="237.9443359375">
             <font>
@@ -20,7 +21,7 @@
         </Text>
         <Canvas fx:id="myCanvas" layoutX="50" layoutY="50" width="600" height="600"/>
         <HBox alignment="CENTER">
-            <Button fx:id="restart" text="Restart" />
+            <Button fx:id="returnMenuButton" text="Return to the Menu"  />
             <Button fx:id="reset" text="Reset"/>
         </HBox>
     </VBox>

@@ -24,10 +24,13 @@ public class TicTacToeGameController implements Initializable {
 
     @FXML
     public Text winnerText;
-    @FXML
-    public Button restart;
+
     @FXML
     public Button reset;
+    @FXML
+    public Button returnMenuButton;
+    @FXML
+    private VBox container;
     @FXML
     private Canvas myCanvas;
 
@@ -84,28 +87,29 @@ public class TicTacToeGameController implements Initializable {
            player(gc, row, col);
         });
 
-        restart.setOnAction(e ->
-        {
-            System.out.println("Aqui toy!!!!");
-            try {
-                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("MainMenuView.fxml"));
-                Parent fxmlContent = loader.load();
-            } catch (IOException exp) {
-                exp.printStackTrace();
-            }
-        });
-
         reset.setOnAction(e -> {
             board.reset();
             winningPlayer = 0;
             gameOverResult = 0;
             gc.drawImage(myImage, 0, 0, myCanvas.getWidth(), myCanvas.getHeight());
             winnerText.setText("Tic-Tac-Toe");
-            restart.setDisable(true);
+            //restart.setDisable(true);
             reset.setDisable(true);
         });
 
-        restart.setDisable(true);
+        returnMenuButton.setOnAction(e -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("MainMenuView.fxml"));
+                Parent fxmlContent = loader.load();
+                container.getChildren().clear();
+                container.getChildren().add(fxmlContent);
+                //receiveRoomsList.cancel();
+            } catch (IOException exp) {
+                exp.printStackTrace();
+            }
+        });
+
+        //restart.setDisable(true);
         reset.setDisable(true);
     }
 
@@ -148,7 +152,6 @@ public class TicTacToeGameController implements Initializable {
             winnerText.setText("Game tied!!");
         }
 
-        restart.setDisable(gameOverResult == 0);
         reset.setDisable(gameOverResult == 0);
     }
 
