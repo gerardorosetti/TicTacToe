@@ -7,11 +7,8 @@ import java.net.Socket;
 public class Room implements Runnable{
 
     private static int roomNumber = 0;
-    //private Socket[] players_socket = new Socket[2];
     private boolean finished;
-    private TicTacToe game;
     private  String roomName = "";
-    //private final Connection[] playersConnections;
     private Connection[] playersConnections;
     private int numPlayersConnected;
     private boolean endThread;
@@ -24,13 +21,9 @@ public class Room implements Runnable{
         playersConnections[0] = null;
         playersConnections[1] = null;
         numPlayersConnected = 0;
-        game = new TicTacToe();
         finished = false;
         endThread = false;
     }
-    /*public Room(Socket[] _players_socket){
-        this.players_socket = _players_socket;
-    }*/
     public String getRoomName() {
         return roomName;
     }
@@ -49,14 +42,9 @@ public class Room implements Runnable{
         }
         if (playersConnections[0] == null) {
             playersConnections[0] = connection;
-            //connection.sendMessage("JOINED");
-            //playersConnections[0].sendMessage("player1");
         } else {
             playersConnections[1] = connection;
-            //playersConnections[1].sendMessage("player2");
-        }
-        //connection.sendMessage("JOINED");
-        roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected;
+        }roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected;
         return true;
     }
 
@@ -66,29 +54,23 @@ public class Room implements Runnable{
 
     @Override
     public void run() {
-        //while (!endThread) {
-            //if (numPlayersConnected >= 2) {
                 try {
                     System.out.println("GAME STARTED");
                     String board = "1_________";
                     System.out.println(board);
                     while (!finished) {
                         sendMessageToAll(board);
-                        //System.out.println("MESSAGE SEND");
                         board = getPlayFromConnections();
                         if (board.equals("GAMEOVER")) {
                             finished = true;
                         }
                         System.out.println(board);
                     }
-                    game.reset();
                     finished = false;
                     removePlayers();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-            //}
-        //}
     }
 
     private void sendMessageToAll(String str) {

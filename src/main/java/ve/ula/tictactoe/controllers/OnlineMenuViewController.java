@@ -42,17 +42,13 @@ public class OnlineMenuViewController implements Initializable {
 
     private ScheduledService<Void> receiveRoomsList;
     private final int port = 5900;
-    private final String host = "192.168.0.111";
-    //private final InetSocketAddress address = new InetSocketAddress("localhost", 5900);
+    private final String host = "localhost";
     private Socket socket;
     private Lock lock;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //System.out.println("CONNECTION SUCCESSFULLY");
-
         lock = new ReentrantLock();
-
         try {
             receiveRoomsList = new ScheduledService<Void>() {
                 @Override
