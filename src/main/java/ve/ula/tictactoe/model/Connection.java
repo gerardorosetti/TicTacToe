@@ -1,37 +1,24 @@
 package ve.ula.tictactoe.model;
 
-import javafx.concurrent.ScheduledService;
-import javafx.concurrent.Task;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class Connection {
 
     private final Socket socketClient;
     private PrintWriter out;
     private BufferedReader in;
-    //private PrintWriter outList;
-    //private BufferedReader inList;
 
     public Connection(Socket soc) {
         socketClient = soc;
         try {
+            socketClient.setSoTimeout(2500);
             out = new PrintWriter(socketClient.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
-            //outList = new PrintWriter(socketClient.getOutputStream(), true);
-            //inList = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void resetIn() {
-        try {
-            in.reset();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -42,26 +29,25 @@ public class Connection {
     }
 
     public String receiveMessage() {
-        try {
-            return in.readLine();
-        } catch (Exception e) {
-            e.printStackTrace();
+        while (true) {
+            try {
+                return in.readLine();
+            } catch (SocketTimeoutException timeout) {
+                try {
+                    PrintWriter writer = new PrintWriter(socketClient.getOutputStream(), true);
+                    writer.println("ping"); // Enviar un mensaje de prueba al cliente
+                    System.out.println("La conexión con el cliente: " + socketClient +"aún está activa.");
+                } catch (IOException ex) {
+                    System.out.println("Se ha perdido la conexión con el cliente.");
+                    break;
+                }
+            } catch (Exception e) {
+                break;
+                //e.printStackTrace();
+            }
         }
-        return "";
+        return "DISCONNECTED";
     }
-
-    /*public synchronized void sendRoomsList(String message) {
-        outList.println(message);
-    }
-
-    public synchronized String receiveRoomsList() {
-        try {
-            return inList.readLine();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "";
-    }*/
 
     public void disconnect() {
 
@@ -75,18 +61,12 @@ public class Connection {
             if (in != null) {
                 in.close();
             }
-            /*if (outList != null) {
-                outList.close();
-            }
-            if (inList != null) {
-                inList.close();
-            }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public boolean checkConnection() {
+    public boolean isConnected() {
         return socketClient.isConnected();
     }
 }

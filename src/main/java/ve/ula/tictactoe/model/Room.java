@@ -1,18 +1,13 @@
 package ve.ula.tictactoe.model;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 public class Room implements Runnable{
 
     private static int roomNumber = 0;
     private boolean finished;
     private  String roomName = "";
-    private Connection[] playersConnections;
+    private final Connection[] playersConnections;
     private int numPlayersConnected;
-    private boolean endThread;
-    private int id;
+    private final int id;
 
     public Room() {
         id = ++roomNumber;
@@ -22,7 +17,6 @@ public class Room implements Runnable{
         playersConnections[1] = null;
         numPlayersConnected = 0;
         finished = false;
-        endThread = false;
     }
     public String getRoomName() {
         return roomName;
@@ -54,36 +48,65 @@ public class Room implements Runnable{
 
     @Override
     public void run() {
-                try {
-                    System.out.println("GAME STARTED");
-                    String board = "1_________";
-                    System.out.println(board);
-                    while (!finished) {
-                        sendMessageToAll(board);
-                        board = getPlayFromConnections();
-                        if (board.equals("GAMEOVER")) {
-                            finished = true;
-                        }
-                        System.out.println(board);
-                    }
-                    finished = false;
-                    removePlayers();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        try {
+            System.out.println("GAME STARTED");
+            String board = "1_________";
+            System.out.println(board);
+            while (!finished) {
+                sendMessageToAll(board);
+                board = getPlayFromConnections();
+                if (board.equals("GAMEOVER")) {
+                    finished = true;
                 }
+                System.out.println(board);
+            }
+            finished = false;
+            removePlayers();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void sendMessageToAll(String str) {
         for (int i = 0; i < 2; ++i) {
-            playersConnections[i].sendMessage(str);
+            if (playersConnections[i] != null) {
+                if (playersConnections[i].isConnected()) {
+                    playersConnections[i].sendMessage(str);
+                }
+            }
         }
     }
 
     private String getPlayFromConnections() {
-        String player1 = playersConnections[0].receiveMessage();
-        String player2 = playersConnections[1].receiveMessage();
-        if (player1.equals("GAMEOVER") || player2.equals("GAMEOVER")) {
+        String player1 = "ping";
+        while (player1.equals("ping")) {
+            player1 = playersConnections[0].receiveMessage();
+            if (player1 == null) {
+                break;
+            }
+        }
+        String player2 = "ping";
+        while (player2.equals("ping")) {
+            player2 = playersConnections[1].receiveMessage();
+            if (player2 == null) {
+                break;
+            }
+        }
+        if (player1 == null || player2 == null) {
+            if (player1 != null) {
+                if (player1.equals("GAMEOVER")) {
+                    return "GAMEOVER";
+                }
+            } else if (player2 != null) {
+                if (player2.equals("GAMEOVER")) {
+                    return "GAMEOVER";
+                }
+            }
+            return "DEFAULT";
+        } else if (player1.equals("GAMEOVER") || player2.equals("GAMEOVER")) {
             return "GAMEOVER";
+        } else if (player1.equals("DISCONNECTED") || player2.equals("DISCONNECTED")) {
+            return "DEFAULT";
         } else if (player1.equals("NOTHING")) {
             return player2;
         } else {
@@ -98,9 +121,5 @@ public class Room implements Runnable{
             --numPlayersConnected;
         }
         roomName = "Room " + id + " | Current Players: " + numPlayersConnected;
-    }
-
-    public void endThreadExecution() {
-        endThread = true;
     }
 }
