@@ -122,7 +122,6 @@ public class OnlineMenuViewController implements Initializable {
                     String selectedRoomName = roomsListView.getSelectionModel().getSelectedItem();
                     clientConnection.sendMessage(selectedRoomName);
                     int playersCount = Integer.parseInt(selectedRoomName.split("Current Players: ")[1]);
-                    System.out.println("Número de jugadores actuales: " + playersCount);
                     if (playersCount < 2) {
                         System.out.println("JOINING ROOM SUCCESS");
                         FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
@@ -132,10 +131,7 @@ public class OnlineMenuViewController implements Initializable {
                         TicTacToeOnlineController TTTOC = loader.getController();
                         TTTOC.setConnection(clientConnection);
                         receiveRoomsList.cancel();
-                    } else {
-                        System.out.println("JOINING ROOM FAILED");
                     }
-                    //clientConnection.disconnect();
                 } catch (IOException exp){
                     exp.printStackTrace();
                 } finally {

@@ -23,12 +23,12 @@ import java.util.ResourceBundle;
 public class TicTacToeGameController implements Initializable {
 
     @FXML
-    public Text winnerText;
+    private Text winnerText;
 
     @FXML
-    public Button reset;
+    private Button reset;
     @FXML
-    public Button returnMenuButton;
+    private Button returnMenuButton;
     @FXML
     private VBox container;
     @FXML
@@ -93,7 +93,6 @@ public class TicTacToeGameController implements Initializable {
             gameOverResult = 0;
             gc.drawImage(myImage, 0, 0, myCanvas.getWidth(), myCanvas.getHeight());
             winnerText.setText("Tic-Tac-Toe");
-            //restart.setDisable(true);
             reset.setDisable(true);
         });
 
@@ -103,13 +102,10 @@ public class TicTacToeGameController implements Initializable {
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
                 container.getChildren().add(fxmlContent);
-                //receiveRoomsList.cancel();
             } catch (IOException exp) {
                 exp.printStackTrace();
             }
         });
-
-        //restart.setDisable(true);
         reset.setDisable(true);
     }
 
@@ -120,7 +116,6 @@ public class TicTacToeGameController implements Initializable {
         winningPlayer = 0;
 
         if (playerTurn == 1) {
-
             if (board.set(r, c, 'X')) {
                 f.drawImage(xImage, x, y, imageWidth, imageHeight);
                 gameOverResult = board.isGameOver();
@@ -137,7 +132,6 @@ public class TicTacToeGameController implements Initializable {
             if (board.set(r, c, 'O')) {
                 f.drawImage(oImage, x, y, imageWidth, imageHeight);
                 gameOverResult = board.isGameOver();
-
                 if (gameOverResult == 1) {
                     winningPlayer = 2;
                 } else {
@@ -145,13 +139,11 @@ public class TicTacToeGameController implements Initializable {
                 }
             }
         }
-
         if (gameOverResult == 1) {
             winnerText.setText("Player " + winningPlayer + " won!!");
         } else if (gameOverResult == -1) {
             winnerText.setText("Game tied!!");
         }
-
         reset.setDisable(gameOverResult == 0);
     }
 

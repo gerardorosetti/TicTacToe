@@ -26,8 +26,6 @@ public class MainMenuViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //buttons = new ArrayList<>(Arrays.asList(button1,button2,button3,button4,button5,button6,button7,button8,button9));
-
         buttonLocal.setOnAction(e ->
         {
             try {
@@ -51,11 +49,5 @@ public class MainMenuViewController implements Initializable {
                 exp.printStackTrace();
             }
         });
-        /*
-        button.setOnMouseClicked(mouseEvent -> {
-            setPlayerSymbol(button);
-            button.setDisable(true);
-            checkIfGameIsOver();
-        });*/
     }
 }

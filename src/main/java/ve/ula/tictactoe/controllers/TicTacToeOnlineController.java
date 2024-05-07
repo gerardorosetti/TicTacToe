@@ -99,11 +99,12 @@ public class TicTacToeOnlineController implements Initializable {
         leaveButton.setOnAction(e ->
         {
             try {
+                connection.sendMessage("EXIT");
+                connection.disconnect();
                 FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("OnlineMenuView.fxml"));
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
                 container.getChildren().add(fxmlContent);
-                connection.disconnect();
             } catch (IOException exp) {
                 exp.printStackTrace();
             }
@@ -127,12 +128,9 @@ public class TicTacToeOnlineController implements Initializable {
 
     private void game() {
         GraphicsContext f = graphicsContext;
-        System.out.println("GAME STARTED LOCALLY");
         while (gameOverResult != 1 && gameOverResult != -1) {
             String message = connection.receiveMessage();
             String boardStr = message.substring(1);
-            System.out.println(message);
-            System.out.println(boardStr);
             if (message.charAt(0) == '1' && playerChar == 'X'
             || message.charAt(0) == '2' && playerChar == 'O') {
                 updateBoard(boardStr);
@@ -185,7 +183,6 @@ public class TicTacToeOnlineController implements Initializable {
                 playerTurn = 1;
             }
         }
-
         if (gameOverResult == 1) {
             if (winningPlayer == 1) {
                 winnerText.setText("Player X won!!");
@@ -205,8 +202,8 @@ public class TicTacToeOnlineController implements Initializable {
 
         int x = (int) (cellWidth * c + imageXOffset);
         int y = (int) (cellHeight * r + imageYOffset);
+
         if (playerChar == 'X') {
-            //charBoard[r][c] = 'X';
             board.set(r, c, 'X');
             f.drawImage(xImage, x, y, imageWidth, imageHeight);
             connection.sendMessage(getBoardStr());
@@ -216,16 +213,9 @@ public class TicTacToeOnlineController implements Initializable {
             } else {
                 playerTurn = 2;
             }
-        } else {
-            //charBoard[r][c] = 'O';
-            board.set(r, c, 'O');
+        } else {board.set(r, c, 'O');
             f.drawImage(oImage, x, y, imageWidth, imageHeight);
             connection.sendMessage(getBoardStr());
-            /*if (result.equals("1") || result.equals("-1")) {
-                gameOverResult = Integer.parseInt(result);
-            } else {
-                gameOverResult = 0;
-            }*/
             gameOverResult = board.isGameOver();
             if (gameOverResult == 1) {
                 winningPlayer = 2;
@@ -233,7 +223,6 @@ public class TicTacToeOnlineController implements Initializable {
                 playerTurn = 1;
             }
         }
-
         if (gameOverResult == 1) {
             if (winningPlayer == 1) {
                 winnerText.setText("Player X won!!");
@@ -243,7 +232,6 @@ public class TicTacToeOnlineController implements Initializable {
         } else if (gameOverResult == -1) {
             winnerText.setText("Game tied!!");
         }
-
         canPlay = false;
     }
 
@@ -251,7 +239,7 @@ public class TicTacToeOnlineController implements Initializable {
         String result = playerChar == 'X' ? "2" : "1";
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                result += board.getCharAt(i, j);//charBoard[i][j];
+                result += board.getCharAt(i, j);
             }
         }
         return result;
@@ -260,7 +248,6 @@ public class TicTacToeOnlineController implements Initializable {
     public void setConnection(Connection connection) {
         this.connection = connection;
         setTexts();
-        //game(graphicsContext);
         gameThread = new Thread(this::game);
         gameThread.start();
     }
