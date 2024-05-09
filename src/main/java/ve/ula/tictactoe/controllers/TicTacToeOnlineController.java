@@ -204,21 +204,17 @@ public class TicTacToeOnlineController implements Initializable {
         if (player == 'X') {
             f.drawImage(xImage, x, y, imageWidth, imageHeight);
             gameOverResult = board.isGameOver();
-            if (gameOverResult == 1 && (winningPlayer != 1 && winningPlayer != 2)) {
-                winningPlayer = 1;
-            }
         } else {
             f.drawImage(oImage, x, y, imageWidth, imageHeight);
             gameOverResult = board.isGameOver();
-            if (gameOverResult == 1  && (winningPlayer != 1 && winningPlayer != 2)) {
-                winningPlayer = 2;
-            }
         }
         if (gameOverResult == 1) {
-            if (winningPlayer == 1) {
-                winnerText.setText("Player X won!");
-            } else {
+            if (playerChar == 'X') {
+                winningPlayer = 2;
                 winnerText.setText("Player O won!");
+            } else {
+                winningPlayer = 1;
+                winnerText.setText("Player X won!");
             }
         } else if (gameOverResult == -1) {
             winnerText.setText("Game tied!");
