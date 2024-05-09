@@ -1,3 +1,6 @@
+/**
+ * TicTacToeOnlineController class manages the online multiplayer gameplay functionality of the Tic Tac Toe game.
+ */
 package ve.ula.tictactoe.controllers;
 
 import javafx.fxml.FXML;
@@ -19,6 +22,9 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+/**
+ * The TicTacToeOnlineController class implements the Initializable interface and controls online multiplayer gameplay.
+ */
 public class TicTacToeOnlineController implements Initializable {
     @FXML
     private Text playerText;
@@ -50,7 +56,12 @@ public class TicTacToeOnlineController implements Initializable {
     private Board board;
     private Connection connection;
 
-
+    /**
+     * Initializes the TicTacToeOnlineController with the specified URL and resource bundle.
+     *
+     * @param url            The location used to resolve relative paths for the root object.
+     * @param resourceBundle The ResourceBundle for the root object.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -64,6 +75,7 @@ public class TicTacToeOnlineController implements Initializable {
             }
         });
 
+        // Initialization of game board and canvas.
         board = new Board();
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
@@ -82,6 +94,7 @@ public class TicTacToeOnlineController implements Initializable {
         GraphicsContext gc = myCanvas.getGraphicsContext2D();
         gc.drawImage(myImage, 0, 0, myCanvas.getWidth(), myCanvas.getHeight());
 
+        // Handling player moves on mouse click.
         myCanvas.setOnMouseClicked(mouseEvent -> {
             if (gameOverResult != 0 || !canPlay) {
                 return;
@@ -90,6 +103,8 @@ public class TicTacToeOnlineController implements Initializable {
             int col = (int) (mouseEvent.getX() / cellWidth);
             play(gc, row, col);
         });
+
+        // Leaving the game button handler.
         leaveButton.setOnAction(e ->
         {
             try {
@@ -105,6 +120,10 @@ public class TicTacToeOnlineController implements Initializable {
         });
         graphicsContext = gc;
     }
+
+    /**
+     * Sets up the player connections, initializes some parameters of the game.
+     */
     private void setTexts() {
         String player = connection.receiveMessage();
         if (player.equals("player1")) {
@@ -119,6 +138,10 @@ public class TicTacToeOnlineController implements Initializable {
         }
         canPlay = false;
     }
+
+    /**
+     * Manages the game loop for online gameplay, updates the board, and handles game messages.
+     */
     private void game() {
         GraphicsContext f = graphicsContext;
         while (gameOverResult != 1 && gameOverResult != -1) {
@@ -153,6 +176,12 @@ public class TicTacToeOnlineController implements Initializable {
         connection.sendMessage("GAMEOVER");
         connection.disconnect();
     }
+
+    /**
+     * Updates the game board based on received data.
+     *
+     * @param boardStr The string representation of the game board.
+     */
     private void updateBoard(String boardStr) {
         for (int i = 0, k = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j, ++k) {
@@ -160,6 +189,15 @@ public class TicTacToeOnlineController implements Initializable {
             }
         }
     }
+
+    /**
+     * Simulates a fake player move on the board for visualization and logic purposes.
+     *
+     * @param f      The GraphicsContext for drawing.
+     * @param r      The row of the move.
+     * @param c      The column of the move.
+     * @param player The player symbol to be placed on the board.
+     */
     private void fakePlay(GraphicsContext f, int r, int c, char player) {
         int x = (int) (cellWidth * c + imageXOffset);
         int y = (int) (cellHeight * r + imageYOffset);
@@ -186,6 +224,14 @@ public class TicTacToeOnlineController implements Initializable {
             winnerText.setText("Game tied!");
         }
     }
+
+    /**
+     * Handles the player move on the game board and communicates with the other player.
+     *
+     * @param f The GraphicsContext for drawing.
+     * @param r The row of the move.
+     * @param c The column of the move.
+     */
     private void play(GraphicsContext f, int r, int c) {
         if (board.getCharAt(r, c) != '_') {
             return;
@@ -221,15 +267,27 @@ public class TicTacToeOnlineController implements Initializable {
         }
         canPlay = false;
     }
+
+    /**
+     * Forms and returns the string representation of the game board.
+     *
+     * @return The string representation of the game board.
+     */
     private String getBoardStr() {
         String result = playerChar == 'X' ? "2" : "1";
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
-                result += board.getCharAt(i, j);//charBoard[i][j];
+                result += board.getCharAt(i, j);
             }
         }
         return result;
     }
+
+    /**
+     * Sets the connection for the online game and starts the game loop.
+     *
+     * @param connection The Connection object for handling network communication.
+     */
     public void setConnection(Connection connection) {
         this.connection = connection;
         setTexts();

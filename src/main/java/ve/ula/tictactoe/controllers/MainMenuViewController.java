@@ -1,3 +1,6 @@
+/**
+ * The MainMenuViewController class controls the main menu view of the Tic Tac Toe game.
+ */
 package ve.ula.tictactoe.controllers;
 
 import javafx.fxml.FXML;
@@ -12,6 +15,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * The MainMenuViewController class implements the Initializable interface and controls the main menu view.
+ */
 public class MainMenuViewController implements Initializable {
 
     @FXML
@@ -23,6 +29,12 @@ public class MainMenuViewController implements Initializable {
     @FXML
     private VBox container;
 
+    /**
+     * Initializes the main menu view with the specified URL and resource bundle.
+     *
+     * @param url            The location used to resolve relative paths for the root object, or null if the location is not known.
+     * @param resourceBundle The ResourceBundle for the root object, or null if there is no ResourceBundle.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         buttonLocal.setOnAction(e ->

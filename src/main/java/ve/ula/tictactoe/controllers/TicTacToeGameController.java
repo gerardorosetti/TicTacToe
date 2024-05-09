@@ -1,3 +1,6 @@
+/**
+ * TicTacToeGameController class controls the gameplay of the Tic Tac Toe game in local/offline mode.
+ */
 package ve.ula.tictactoe.controllers;
 
 import javafx.fxml.FXML;
@@ -18,17 +21,21 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+/**
+ * The TicTacToeGameController class implements the Initializable interface and controls the gameplay of Tic Tac Toe.
+ */
 public class TicTacToeGameController implements Initializable {
+
     @FXML
-    private Text winnerText;
+    private Text winnerText; // Text field to display the winner or tie message.
     @FXML
-    private Button reset;
+    private Button reset; // Button to reset the game.
     @FXML
-    private Button returnMenuButton;
+    private Button returnMenuButton; // Button to return to the main menu.
     @FXML
-    private VBox container;
+    private VBox container; // Container for holding various UI elements.
     @FXML
-    private Canvas myCanvas;
+    private Canvas myCanvas; // Canvas for drawing the game board.
 
     private double cellWidth;
     private double cellHeight;
@@ -45,9 +52,15 @@ public class TicTacToeGameController implements Initializable {
     private int winningPlayer = 0;
     private int gameOverResult;
 
+    /**
+     * Initializes the TicTacToeGameController with the specified URL and resource bundle.
+     *
+     * @param url The location used to resolve relative paths for the root object, or null if the location is not known.
+     * @param resourceBundle The ResourceBundle for the root object, or null if there is no ResourceBundle.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        board = new Board();
+        board = new Board(); // Initialize the game board.
 
         cellWidth = myCanvas.getWidth() / 3;
         cellHeight = myCanvas.getHeight() / 3;
@@ -72,7 +85,7 @@ public class TicTacToeGameController implements Initializable {
             int row = (int) (mouseEvent.getY() / cellHeight);
             int col = (int) (mouseEvent.getX() / cellWidth);
 
-           player(gc, row, col);
+            player(gc, row, col);
         });
 
         reset.setOnAction(e -> {
@@ -97,6 +110,13 @@ public class TicTacToeGameController implements Initializable {
         reset.setDisable(true);
     }
 
+    /**
+     * Handles the player's move on the game board.
+     *
+     * @param f The GraphicsContext for drawing.
+     * @param r The row where the move is made.
+     * @param c The column where the move is made.
+     */
     public void player(GraphicsContext f, int r, int c) {
         int x = (int) (cellWidth * c + imageXOffset);
         int y = (int) (cellHeight * r + imageYOffset);
@@ -134,5 +154,4 @@ public class TicTacToeGameController implements Initializable {
         }
         reset.setDisable(gameOverResult == 0);
     }
-
 }
