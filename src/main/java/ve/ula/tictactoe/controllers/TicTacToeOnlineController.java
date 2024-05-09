@@ -46,6 +46,9 @@ public class TicTacToeOnlineController implements Initializable {
     private Board board;
     private GraphicsContext graphicsContext;
     private Thread gameThread;
+    private boolean firstMove;
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         board = new Board();
@@ -65,6 +68,7 @@ public class TicTacToeOnlineController implements Initializable {
         oImage = new Image(Objects.requireNonNull(MainApplication.class.getResource("img/o.png")).toString());
         GraphicsContext gc = myCanvas.getGraphicsContext2D();
         gc.drawImage(myImage, 0, 0, myCanvas.getWidth(), myCanvas.getHeight());
+
         myCanvas.setOnMouseClicked(mouseEvent -> {
             if (gameOverResult != 0 || !canPlay) {
                 return;
@@ -77,11 +81,11 @@ public class TicTacToeOnlineController implements Initializable {
         {
             try {
                 connection.sendMessage("DISCONNECTED");
+                connection.disconnect();
                 FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("OnlineMenuView.fxml"));
                 Parent fxmlContent = loader.load();
                 container.getChildren().clear();
                 container.getChildren().add(fxmlContent);
-                connection.disconnect();
             } catch (IOException exp) {
                 exp.printStackTrace();
             }
@@ -94,9 +98,11 @@ public class TicTacToeOnlineController implements Initializable {
         if (player.equals("player1")) {
             playerText.setText("X");
             playerChar = 'X';
+            firstMove = true;
         } else {
             playerText.setText("O");
             playerChar = 'O';
+            firstMove = false;
         }
         canPlay = false;
     }
@@ -104,9 +110,10 @@ public class TicTacToeOnlineController implements Initializable {
         GraphicsContext f = graphicsContext;
         System.out.println("GAME STARTED LOCALLY");
         while (gameOverResult != 1 && gameOverResult != -1) {
-            String message = "ping";
-            while (message.equals("ping")) {
-                message = connection.receiveMessage();
+            String message = connection.receiveMessage();
+            if (firstMove) {
+                connection.sendMessage("PLAYING");
+                firstMove = false;
             }
             if (message.equals("DEFAULT") || message.equals("DISCONNECTED")) {
                 winnerText.setText("YOU WIN BECAUSE OTHER PLAYER DISCONNECTION");
@@ -118,6 +125,7 @@ public class TicTacToeOnlineController implements Initializable {
             System.out.println(boardStr);
             if (message.charAt(0) == '1' && playerChar == 'X'
                     || message.charAt(0) == '2' && playerChar == 'O') {
+                //String oldBoard = getBoardStr();
                 updateBoard(boardStr);
                 for (int i = 0; i < 3; ++i) {
                     for (int j = 0; j < 3; ++j) {
@@ -150,17 +158,16 @@ public class TicTacToeOnlineController implements Initializable {
         if (player == 'X') {
             f.drawImage(xImage, x, y, imageWidth, imageHeight);
             gameOverResult = board.isGameOver();
-            if (gameOverResult == 1) {
+            if (gameOverResult == 1 && (winningPlayer != 1 && winningPlayer != 2)) {
                 winningPlayer = 1;
             }
         } else {
             f.drawImage(oImage, x, y, imageWidth, imageHeight);
             gameOverResult = board.isGameOver();
-            if (gameOverResult == 1) {
+            if (gameOverResult == 1  && (winningPlayer != 1 && winningPlayer != 2)) {
                 winningPlayer = 2;
             }
         }
-
         if (gameOverResult == 1) {
             if (winningPlayer == 1) {
                 winnerText.setText("Player X won!!");

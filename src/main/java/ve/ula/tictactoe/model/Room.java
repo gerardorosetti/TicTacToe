@@ -30,6 +30,21 @@ public class Room implements Runnable{
         }
     }
 
+    public void waitingForPlayer() {
+        if (numPlayersConnected == 1) {
+            String message = playersConnections[0].receiveMessage();
+
+            if (message != null) {
+                if (message.equals("DISCONNECTED")) {
+                    --numPlayersConnected;
+                    playersConnections[0] = null;
+                    roomName = "Room " + id + " | Current Players: " + numPlayersConnected;
+                    //break;
+                }
+            }
+        }
+    }
+
     public boolean setPlayer(Connection connection) {
         if (numPlayersConnected >= 2) {
             return false;
@@ -78,20 +93,8 @@ public class Room implements Runnable{
     }
 
     private String getPlayFromConnections() {
-        String player1 = "ping";
-        while (player1.equals("ping")) {
-            player1 = playersConnections[0].receiveMessage();
-            if (player1 == null) {
-                break;
-            }
-        }
-        String player2 = "ping";
-        while (player2.equals("ping")) {
-            player2 = playersConnections[1].receiveMessage();
-            if (player2 == null) {
-                break;
-            }
-        }
+        String player1 = playersConnections[0].receiveMessage();
+        String player2 = playersConnections[1].receiveMessage();
         if (player1 == null || player2 == null) {
             if (player1 != null) {
                 if (player1.equals("GAMEOVER")) {

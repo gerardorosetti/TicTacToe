@@ -35,6 +35,7 @@ public class ServerViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         toggleServerButton.setOnAction(e -> {
             if (isServerRunning) {
+                listen.interrupt();
                 infoText.setText("Server Stopped");
                 server.stopServer();
                 toggleServerButton.setText("Start");

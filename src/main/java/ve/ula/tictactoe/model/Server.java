@@ -39,6 +39,8 @@ public class Server {
                     room.startComunicationWithPlayer();
                     if (room.getNumPlayersConnected() >= 2) {
                         new Thread(room).start();
+                    } else if (room.getNumPlayersConnected() == 1) {
+                        new Thread(room::waitingForPlayer).start();
                     }
                     System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
                 } else {
