@@ -14,7 +14,6 @@ import ve.ula.tictactoe.MainApplication;
 import ve.ula.tictactoe.model.Connection;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.util.Arrays;

@@ -1,4 +1,5 @@
 package ve.ula.tictactoe.controllers;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -9,6 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import ve.ula.tictactoe.MainApplication;
 import ve.ula.tictactoe.model.Board;
 import ve.ula.tictactoe.model.Connection;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.ResourceBundle;
+
 public class TicTacToeOnlineController implements Initializable {
     @FXML
     private Text playerText;
@@ -50,6 +53,17 @@ public class TicTacToeOnlineController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        container.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                Stage stage = (Stage) newScene.getWindow();
+                stage.setOnCloseRequest(event -> {
+                    connection.sendMessage("DISCONNECTED");
+                    connection.disconnect();
+                });
+            }
+        });
+
         board = new Board();
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 3; ++j) {
