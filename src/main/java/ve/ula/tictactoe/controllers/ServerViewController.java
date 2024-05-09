@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import ve.ula.tictactoe.MainApplication;
 import ve.ula.tictactoe.model.Server;
 
@@ -35,18 +36,18 @@ public class ServerViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         toggleServerButton.setOnAction(e -> {
             if (isServerRunning) {
-                listen.interrupt();
                 infoText.setText("Server Stopped");
                 server.stopServer();
-                toggleServerButton.setText("Start");
-                isServerRunning = false;
+                listen.interrupt();
+                Stage stage = (Stage) toggleServerButton.getScene().getWindow();
+                stage.close();
             } else {
                 infoText.setText("Server Running...");
                 server.createRoom();
                 server.createRoom();
                 listen = new Thread(() -> server.listen());
                 listen.start();
-                toggleServerButton.setText("End");
+                toggleServerButton.setText("End - Close Server");
                 isServerRunning = true;
             }
         });

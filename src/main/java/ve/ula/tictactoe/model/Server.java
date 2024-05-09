@@ -42,7 +42,6 @@ public class Server {
                     } else if (room.getNumPlayersConnected() == 1) {
                         new Thread(room::waitingForPlayer).start();
                     }
-                    System.out.println("Player joined to the room " + room.getRoomName() + " successfully!");
                 } else {
                     break;
                 }
@@ -67,10 +66,10 @@ public class Server {
     }
 
     public void listen() {
-        System.out.println("SERVER STARTED");
         try {
             ServerSocket ss = new ServerSocket(port);
             ss.setSoTimeout(1000);
+            serverRunning = true;
             while(serverRunning) {
                 try{
                     Socket soc1 = ss.accept();

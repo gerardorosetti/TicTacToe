@@ -123,7 +123,6 @@ public class OnlineMenuViewController implements Initializable {
                     clientConnection.sendMessage(selectedRoomName);
                     int playersCount = Integer.parseInt(selectedRoomName.split("Current Players: ")[1]);
                     if (playersCount < 2) {
-                        System.out.println("JOINING ROOM SUCCESS");
                         FXMLLoader loader = new FXMLLoader(MainApplication.class.getResource("TicTacToeOnlineView.fxml"));
                         Parent fxmlContent = loader.load();
                         container.getChildren().clear();

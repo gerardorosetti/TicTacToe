@@ -27,26 +27,25 @@ public class TicTacToeOnlineController implements Initializable {
     public Text winnerText;
     @FXML
     private Canvas myCanvas;
+
     private double cellWidth;
     private double cellHeight;
     private double imageWidth;
     private double imageHeight;
     private double imageXOffset;
     private double imageYOffset;
-
     private Image xImage;
     private Image oImage;
-
-    int winningPlayer = 0;
-    int gameOverResult;
     private static final double IMAGE_SCALE = 0.75;
-    private char playerChar;
-    private Connection connection;
-    private boolean canPlay;
-    private Board board;
     private GraphicsContext graphicsContext;
-    private Thread gameThread;
+
+    private int winningPlayer = 0;
+    private int gameOverResult;
+    private char playerChar;
+    private boolean canPlay;
     private boolean firstMove;
+    private Board board;
+    private Connection connection;
 
 
     @Override
@@ -94,10 +93,10 @@ public class TicTacToeOnlineController implements Initializable {
     }
     private void setTexts() {
         String player = connection.receiveMessage();
-        System.out.println("JUGADOR TESTING STRING: " + player);
         if (player.equals("player1")) {
             playerText.setText("X");
             playerChar = 'X';
+            winnerText.setText("Waiting for Another Player");
             firstMove = true;
         } else {
             playerText.setText("O");
@@ -108,24 +107,20 @@ public class TicTacToeOnlineController implements Initializable {
     }
     private void game() {
         GraphicsContext f = graphicsContext;
-        System.out.println("GAME STARTED LOCALLY");
         while (gameOverResult != 1 && gameOverResult != -1) {
             String message = connection.receiveMessage();
             if (firstMove) {
+                winnerText.setText("Tic-Tac-Toe");
                 connection.sendMessage("PLAYING");
                 firstMove = false;
             }
             if (message.equals("DEFAULT") || message.equals("DISCONNECTED")) {
                 winnerText.setText("YOU WIN BECAUSE OTHER PLAYER DISCONNECTION");
-                System.out.println("WIN FOR DEFAULT");
                 break;
             }
             String boardStr = message.substring(1);
-            System.out.println(message);
-            System.out.println(boardStr);
             if (message.charAt(0) == '1' && playerChar == 'X'
                     || message.charAt(0) == '2' && playerChar == 'O') {
-                //String oldBoard = getBoardStr();
                 updateBoard(boardStr);
                 for (int i = 0; i < 3; ++i) {
                     for (int j = 0; j < 3; ++j) {
@@ -140,7 +135,6 @@ public class TicTacToeOnlineController implements Initializable {
             } else {
                 connection.sendMessage("NOTHING");
             }
-            System.out.println(canPlay);
         }
         connection.sendMessage("GAMEOVER");
         connection.disconnect();
@@ -170,12 +164,12 @@ public class TicTacToeOnlineController implements Initializable {
         }
         if (gameOverResult == 1) {
             if (winningPlayer == 1) {
-                winnerText.setText("Player X won!!");
+                winnerText.setText("Player X won!");
             } else {
-                winnerText.setText("Player O won!!");
+                winnerText.setText("Player O won!");
             }
         } else if (gameOverResult == -1) {
-            winnerText.setText("Game tied!!");
+            winnerText.setText("Game tied!");
         }
     }
     private void play(GraphicsContext f, int r, int c) {
@@ -204,12 +198,12 @@ public class TicTacToeOnlineController implements Initializable {
 
         if (gameOverResult == 1) {
             if (winningPlayer == 1) {
-                winnerText.setText("Player X won!!");
+                winnerText.setText("Player X won!");
             } else {
-                winnerText.setText("Player O won!!");
+                winnerText.setText("Player O won!");
             }
         } else if (gameOverResult == -1) {
-            winnerText.setText("Game tied!!");
+            winnerText.setText("Game tied!");
         }
         canPlay = false;
     }
@@ -225,7 +219,7 @@ public class TicTacToeOnlineController implements Initializable {
     public void setConnection(Connection connection) {
         this.connection = connection;
         setTexts();
-        gameThread = new Thread(this::game);
+        Thread gameThread = new Thread(this::game);
         gameThread.start();
     }
 }

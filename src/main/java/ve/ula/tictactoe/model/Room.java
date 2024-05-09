@@ -39,7 +39,6 @@ public class Room implements Runnable{
                     --numPlayersConnected;
                     playersConnections[0] = null;
                     roomName = "Room " + id + " | Current Players: " + numPlayersConnected;
-                    //break;
                 }
             }
         }
@@ -53,7 +52,12 @@ public class Room implements Runnable{
             playersConnections[0] = connection;
         } else {
             playersConnections[1] = connection;
-        }roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected;
+        }
+        if (numPlayersConnected == 0) {
+            roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected;
+        } else {
+            roomName = "Room " + id + " | Current Players: " + ++numPlayersConnected + " (Playing)";
+        }
         return true;
     }
 
@@ -64,16 +68,13 @@ public class Room implements Runnable{
     @Override
     public void run() {
         try {
-            System.out.println("GAME STARTED");
             String board = "1_________";
-            System.out.println(board);
             while (!finished) {
                 sendMessageToAll(board);
                 board = getPlayFromConnections();
                 if (board.equals("GAMEOVER")) {
                     finished = true;
                 }
-                System.out.println(board);
             }
             finished = false;
             removePlayers();
@@ -96,6 +97,9 @@ public class Room implements Runnable{
         String player1 = playersConnections[0].receiveMessage();
         String player2 = playersConnections[1].receiveMessage();
         if (player1 == null || player2 == null) {
+            if (player1 == null && player2 == null) {
+                return "GAMEOVER";
+            }
             if (player1 != null) {
                 if (player1.equals("GAMEOVER")) {
                     return "GAMEOVER";

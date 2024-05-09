@@ -16,7 +16,6 @@ public class Connection {
     public Connection(Socket soc) {
         socketClient = soc;
         try {
-            //socketClient.setSoTimeout(2500);
             out = new PrintWriter(socketClient.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(socketClient.getInputStream()));
         } catch (Exception e) {
@@ -29,23 +28,10 @@ public class Connection {
     }
 
     public String receiveMessage() {
-        //while (true) {
             try {
                 return in.readLine();
-            }/* catch (SocketTimeoutException timeout) {
-                try {
-                    PrintWriter writer = new PrintWriter(socketClient.getOutputStream(), true);
-                    writer.println("ping"); // Enviar un mensaje de prueba al cliente
-                    System.out.println("La conexión con el cliente: " + socketClient +"aún está activa.");
-                } catch (IOException ex) {
-                    System.out.println("Se ha perdido la conexión con el cliente.");
-                    break;
-                }
-            } */catch (Exception e) {
-                //break;
-                //e.printStackTrace();
+            } catch (Exception e) {
             }
-        //}
         return "DISCONNECTED";
     }
 

@@ -21,10 +21,8 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class TicTacToeGameController implements Initializable {
-
     @FXML
     private Text winnerText;
-
     @FXML
     private Button reset;
     @FXML
@@ -36,26 +34,18 @@ public class TicTacToeGameController implements Initializable {
 
     private double cellWidth;
     private double cellHeight;
-
     private double imageWidth;
     private double imageHeight;
-
     private double imageXOffset;
     private double imageYOffset;
-
     private int playerTurn = 1;
-
     private Image xImage;
     private Image oImage;
+    private static final double IMAGE_SCALE = 0.75;
 
     private Board board;
-
-    int winningPlayer = 0;
-    int gameOverResult;
-
-
-
-    private static final double IMAGE_SCALE = 0.75;
+    private int winningPlayer = 0;
+    private int gameOverResult;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -140,9 +130,9 @@ public class TicTacToeGameController implements Initializable {
             }
         }
         if (gameOverResult == 1) {
-            winnerText.setText("Player " + winningPlayer + " won!!");
+            winnerText.setText("Player " + winningPlayer + " won!");
         } else if (gameOverResult == -1) {
-            winnerText.setText("Game tied!!");
+            winnerText.setText("Game tied!");
         }
         reset.setDisable(gameOverResult == 0);
     }
